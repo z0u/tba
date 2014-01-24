@@ -35,6 +35,7 @@ def draw_text(text):
     bgl.gluOrtho2D(0, width, 0, height)
     bgl.glMatrixMode(bgl.GL_MODELVIEW)
     bgl.glLoadIdentity()
+    bgl.glColor3f(1, 1, 1)
 
     # BLF drawing routine
     dim = min(width, height)
@@ -107,11 +108,16 @@ def exec(cont):
     import tba.render
     sce = bge.logic.getCurrentScene()
     n = tba.render.Narrator()
-    p = tba.render.Perspective(sce.objects['you'])
+    p = tba.render.Perspective(sce.active_camera)
 
     text = text + "\n" + " ".join(n.describe_scene(p)) + "\n"
     globals["SCROLLBACK"] += "\n" + text
 
-    print(text)
+    #print(text)
 
 
+def update_filter(c):
+    sce = bge.logic.getCurrentScene()
+    o = c.owner
+    o.worldPosition = sce.active_camera.worldPosition
+    o.worldOrientation = sce.active_camera.worldOrientation

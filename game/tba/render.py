@@ -67,6 +67,7 @@ class Perspective:
             sce = bge.logic.getCurrentScene()
             obs = [ob for ob in sce.objects if
                    ob.visible and
+                   not ob.name.startswith('_') and
                    ob.groupMembers is None and
                    ob.__class__.__name__ not in {'KX_Camera'}]
 
@@ -76,7 +77,6 @@ class Perspective:
         used_obs = {self.root.ob}
         obs = list(obs)
         obs.sort(key=importance_key(self.root.ob), reverse=True)
-        print(obs)
         # Super-nasty O(n^2) operation! Could do this using mathutils.kdtree, but
         # what if we decide the nearest rule isn't good enough? If we stick with
         # nearest, then this should be updated to use kdtree.
@@ -84,7 +84,6 @@ class Perspective:
         obs2.append(self.root.ob)
         for ob in obs:
             obs2.sort(key=importance_key(ob), reverse=True)
-            print(obs2)
             for ob2 in obs2:
                 if ob2 in self.nodes:
                     self.add(ob, ob2)
@@ -178,9 +177,9 @@ class Narrator:
             a2=a2, ob2=ref))
 
 
-def render(c):
+def test(c):
     sce = bge.logic.getCurrentScene()
-    p = Perspective(sce.objects['you'])
+    p = Perspective(sce.active_camera)
     n = Narrator()
     for sentence in n.describe_scene(p):
         print(sentence)
