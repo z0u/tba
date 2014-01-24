@@ -104,10 +104,12 @@ def exec(cont):
     own["Text"] = ""
     # TODO
 
-    from .render import Renderer
-    r = Renderer()
+    import tba.render
+    sce = bge.logic.getCurrentScene()
+    n = tba.render.Narrator()
+    p = tba.render.Perspective(sce.objects['you'])
 
-    text = text + "\n" + " ".join(r.describe_scene()) + "\n"
+    text = text + "\n" + " ".join(n.describe_scene(p)) + "\n"
     globals["SCROLLBACK"] += "\n" + text
 
     print(text)
