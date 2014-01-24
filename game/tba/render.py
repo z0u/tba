@@ -17,13 +17,35 @@ def p(ob, prop, default=None):
 class distance_key:
     '''For sorting objects based on distance from a reference point.'''
     def __init__(self, ref):
-        if hasattr(ref, 'worldPosition'):
-            self.ref = ref.worldPosition
-        else:
-            self.ref = ref
+        self.ref = ref
+        self.ref_pos = self.ref.worldPosition
 
     def __call__(self, ob):
-        return (self.ref - ob.worldPosition).magnitude
+        return (self.ref_pos - ob.worldPosition).magnitude
+
+
+class importance_key:
+    '''
+    For sorting objects based on apparent importance. Basically, close or large
+    objects are more important.
+    '''
+    def __init__(self, ref):
+        self.ref = ref
+        self.ref_pos = self.ref.worldPosition
+
+    def __call__(self, ob):
+        dist = (self.ref_pos - ob.worldPosition).magnitude
+        # Adjust distance to account for object size (so touching objects have
+        # distance of 0).
+        dist -= p(self.ref, 'size', 1.0) + p(ob, 'size', 1.0)
+        dist = max(0, dist)
+        # Avoid div0
+        dist += 1
+
+        importance = p(ob, 'size', 1.0) * p(ob, 'rel_size', 1.0)
+
+#        print(ob, dist, importance)
+        return importance / (dist * dist)
 
 
 def nearest(ob, obs):
@@ -33,6 +55,56 @@ def nearest(ob, obs):
         if other is not ob:
             return other
     return None
+
+
+class Tree:
+    '''
+    A spatial hierarchy of objects.
+    '''
+
+    def __init__(self, ref, obs):
+        self.root = Node(ref, None)
+        self.nodes = {ref: self.root}
+        self.build(obs)
+
+    def build(self, obs):
+        used_obs = {self.root.ob}
+        obs = list(obs)
+        obs.sort(key=importance_key(self.root.ob), reverse=True)
+        print(obs)
+        # Super-nasty O(n^2) operation! Could do this using mathutils.kdtree, but
+        # what if we decide the nearest rule isn't good enough? If we stick with
+        # nearest, then this should be updated to use kdtree.
+        obs2 = list(obs)
+        obs2.append(self.root.ob)
+        for ob in obs:
+            obs2.sort(key=importance_key(ob), reverse=True)
+            print(obs2)
+            for ob2 in obs2:
+                if ob2 in self.nodes:
+                    self.add(ob, ob2)
+                    break
+
+    def add(self, ob, parent):
+        pnode = self.nodes[parent]
+        node = Node(ob, pnode)
+        pnode.children.append(node)
+        self.nodes[ob] = node
+        return node
+
+    def prettyprint(self):
+        def _pp(node, indent):
+            print(indent + node.ob.name)
+            for c in node.children:
+                _pp(c, indent + '\t')
+        _pp(self.root, '')
+
+
+class Node:
+    def __init__(self, ob, parent):
+        self.ob = ob
+        self.parent = parent
+        self.children = []
 
 
 class Renderer:
@@ -45,7 +117,9 @@ class Renderer:
         self.recent_obs = {}
         sce = bge.logic.getCurrentScene()
         self.available_obs = [ob for ob in sce.objects if
-                              ob.visible and ob.groupMembers is None]
+                              ob.visible and
+                              ob.groupMembers is None and
+                              ob.__class__.__name__ not in {'KX_Camera'}]
 
     def mention(self, ob):
         self.recent_obs[ob.name] = ob
@@ -68,13 +142,14 @@ class Renderer:
         else:
             return ob_or_name
 
-    def importance_key(self, ob):
-        return p(ob, 'size', 1.0) * p(ob, 'rel_size', 1.0)
-
     def describe_scene(self):
-        self.available_obs.sort(key=self.importance_key, reverse=True)
         sce = bge.logic.getCurrentScene()
         you = sce.objects['you']
+
+        tree = Tree(you, self.available_obs)
+        tree.prettyprint()
+
+        self.available_obs.sort(key=importance_key(you), reverse=True)
         hitob, _, _ = you.rayCast(
             you.worldPosition - mathutils.Vector((0, 0, 100)),
             you.worldPosition,
