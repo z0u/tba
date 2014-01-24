@@ -148,6 +148,13 @@ class Narrator:
             else:
                 return 'a'
 
+    def nounphrase(self, ob):
+        sce = bge.logic.getCurrentScene()
+        if ob is sce.active_camera:
+            return 'you'
+
+        return '{a} {ob}'.format(a=self.article(ob), ob=ob.name)
+
     def describe_scene(self, tree):
         you = tree.root.ob
         ground, _, _ = you.rayCast(
@@ -157,7 +164,8 @@ class Narrator:
 
         if ground is not None:
             yield sentence('{sub} are standing on {a} {ob}.'.format(
-                sub=you.name, a=self.article(ground), ob=ground.name))
+                sub=self.nounphrase(you), a=self.article(ground),
+                ob=ground.name))
             self.recent_obs[ground.name] = ground
 
         for node in tree.walk():
@@ -168,13 +176,11 @@ class Narrator:
     def describe_node(self, node):
         ob = node.ob
         ref = node.parent.ob
-        a1 = self.article(ob)
-        a2 = self.article(ref)
+        sen = sentence('{s} is near {ob}.'.format(
+            s=self.nounphrase(ob), ob=self.nounphrase(ref)))
         self.mention(ob)
         self.mention(ref)
-        return sentence('{a} {ob} is near {a2} {ob2}.'.format(
-            a=a1, ob=ob.name,
-            a2=a2, ob2=ref))
+        return sen
 
 
 def test(c):
