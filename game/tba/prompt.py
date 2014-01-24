@@ -1,10 +1,12 @@
 import bge
 
-FONT_SIZE = 32
+FONT_SIZE = 12
 SMART_WRAP = True
 MARGIN = 0.1
 
-globals = {}
+globals = {
+    "SCROLLBACK": "",
+    }
 
 # ------------------------------------------------------------------------------
 # Drawing
@@ -66,6 +68,7 @@ def draw_text(text):
 def draw_cb():
     """Run on redraw"""
     text = draw_text_calc()  # could cache
+
     draw_text(text)
 
 
@@ -79,23 +82,34 @@ def draw_init(cont):
     scene = bge.logic.getCurrentScene()
     scene.post_draw.append(draw_cb)
 
-
 def draw_text_calc():
     """Collects all info and creates the text to draw"""
 
     own = globals["own"]
     text = own["Text"]
 
-    return text
+    return globals["SCROLLBACK"] + "\n" + text
 
 
 # ------------------------------------------------------------------------------
 # Execution
 #
 def exec(cont):
+
+    if not cont.sensors[0].positive:
+        return
+
     own = globals["own"]
     text = own["Text"]
     own["Text"] = ""
     # TODO
+
+    from .render import Renderer
+    r = Renderer()
+
+    text = text + "\n" + " ".join(r.describe_scene()) + "\n"
+    globals["SCROLLBACK"] += "\n" + text
+
     print(text)
+
 
