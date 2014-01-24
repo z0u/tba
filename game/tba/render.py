@@ -38,6 +38,9 @@ def nearest(ob, obs):
 class Renderer:
     def __init__(self):
         self.recent_obs = {}
+        sce = bge.logic.getCurrentScene()
+        self.available_obs = [ob for ob in sce.objects if
+                              ob.visible and ob.groupMembers is None]
 
     def mention(self, ob):
         self.recent_obs[ob.name] = ob
@@ -54,14 +57,18 @@ class Renderer:
             else:
                 return 'a'
 
+    def dereference(self, ob_or_name):
+        if isinstance(ob_or_name, str):
+            return bge.logic.getCurrentScene().objects[ob_or_name]
+        else:
+            return ob_or_name
+
     def importance_key(self, ob):
         return p(ob, 'size', 1.0) * p(ob, 'rel_size', 1.0)
 
     def describe_scene(self):
+        self.available_obs.sort(key=self.importance_key, reverse=True)
         sce = bge.logic.getCurrentScene()
-        scene_obs = list(sce.objects)
-        scene_obs.sort(key=self.importance_key, reverse=True)
-
         you = sce.objects['you']
         hitob, _, _ = you.rayCast(
             you.worldPosition - mathutils.Vector((0, 0, 100)),
@@ -73,15 +80,19 @@ class Renderer:
                 sub=you.name, a=self.article(hitob), ob=hitob.name))
             self.recent_obs[hitob.name] = hitob
 
-        for ob in scene_obs:
+        for ob in self.available_obs:
             if ob is you:
                 continue
-            neighbour = nearest(ob, scene_obs)
-            write_sentence('{a} {ob} is near {a2} {ob2}'.format(
-                a=self.article(ob), ob=ob.name,
-                a2=self.article(neighbour), ob2=neighbour))
-            self.mention(ob)
-            self.mention(neighbour)
+            self.describe_object(ob)
+
+    def describe_object(self, ob_or_name):
+        ob = self.dereference(ob_or_name)
+        neighbour = nearest(ob, self.available_obs)
+        write_sentence('{a} {ob} is near {a2} {ob2}'.format(
+            a=self.article(ob), ob=ob.name,
+            a2=self.article(neighbour), ob2=neighbour))
+        self.mention(ob)
+        self.mention(neighbour)
 
 def render(c):
     r = Renderer()
