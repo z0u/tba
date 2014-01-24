@@ -57,7 +57,7 @@ def nearest(ob, obs):
     return None
 
 
-class Tree:
+class Perspective:
     '''
     A spatial hierarchy of objects.
     '''
@@ -65,9 +65,7 @@ class Tree:
     def __init__(self, ref, obs):
         self.root = Node(ref, None)
         self.nodes = {ref: self.root}
-        self.build(obs)
 
-    def build(self, obs):
         used_obs = {self.root.ob}
         obs = list(obs)
         obs.sort(key=importance_key(self.root.ob), reverse=True)
@@ -99,6 +97,13 @@ class Tree:
                 _pp(c, indent + '\t')
         _pp(self.root, '')
 
+    def walk(self):
+        def _walk(node):
+            yield node
+            for c in node.children:
+                yield from _walk(c)
+        yield from _walk(self.root)
+
 
 class Node:
     def __init__(self, ob, parent):
@@ -120,6 +125,8 @@ class Renderer:
                               ob.visible and
                               ob.groupMembers is None and
                               ob.__class__.__name__ not in {'KX_Camera'}]
+        self.you = sce.objects['you']
+        self.tree = Perspective(self.you, self.available_obs)
 
     def mention(self, ob):
         self.recent_obs[ob.name] = ob
@@ -143,38 +150,36 @@ class Renderer:
             return ob_or_name
 
     def describe_scene(self):
-        sce = bge.logic.getCurrentScene()
-        you = sce.objects['you']
-
-        tree = Tree(you, self.available_obs)
-        tree.prettyprint()
-
-        self.available_obs.sort(key=importance_key(you), reverse=True)
-        hitob, _, _ = you.rayCast(
-            you.worldPosition - mathutils.Vector((0, 0, 100)),
-            you.worldPosition,
+        self.available_obs.sort(key=importance_key(self.you), reverse=True)
+        hitob, _, _ = self.you.rayCast(
+            self.you.worldPosition - mathutils.Vector((0, 0, 100)),
+            self.you.worldPosition,
             100)
 
         if hitob is not None:
             yield sentence('{sub} are standing on {a} {ob}.'.format(
-                sub=you.name, a=self.article(hitob), ob=hitob.name))
+                sub=self.you.name, a=self.article(hitob), ob=hitob.name))
             self.recent_obs[hitob.name] = hitob
 
-        for ob in self.available_obs:
-            if ob is you:
+        for node in self.tree.walk():
+            if node.ob is self.you:
                 continue
-            yield self.describe_object(ob)
+            yield self.describe_node(node)
 
     def describe_object(self, ob_or_name):
         ob = self.dereference(ob_or_name)
-        neighbour = nearest(ob, self.available_obs)
+        return self.describe_node(self.tree.nodes[ob])
+
+    def describe_node(self, node):
+        ob = node.ob
+        ref = node.parent.ob
         a1 = self.article(ob)
-        a2 = self.article(neighbour)
+        a2 = self.article(ref)
         self.mention(ob)
-        self.mention(neighbour)
+        self.mention(ref)
         return sentence('{a} {ob} is near {a2} {ob2}.'.format(
             a=a1, ob=ob.name,
-            a2=a2, ob2=neighbour))
+            a2=a2, ob2=ref))
 
 def render(c):
     r = Renderer()
