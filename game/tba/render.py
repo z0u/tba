@@ -184,3 +184,5 @@ def render(c):
     n = Narrator()
     for sentence in n.describe_scene(p):
         print(sentence)
+
+    print(n.describe_node(p.get_node('monkey')))
