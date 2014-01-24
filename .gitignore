@@ -1,0 +1,4 @@
+*.pyc
+*.blend?
+*.bgeconf*
+__pycache__
