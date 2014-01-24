@@ -2,8 +2,8 @@ import bge
 import mathutils
 
 
-def write_sentence(text):
-    print(text[0].upper() + text[1:])
+def sentence(text):
+    return text[0].upper() + text[1:]
 
 
 def p(ob, prop, default=None):
@@ -36,6 +36,11 @@ def nearest(ob, obs):
 
 
 class Renderer:
+    '''
+    Generates a textual description of the scene. This object maintains a
+    state, which allows it to generate text with context.
+    '''
+
     def __init__(self):
         self.recent_obs = {}
         sce = bge.logic.getCurrentScene()
@@ -76,24 +81,27 @@ class Renderer:
             100)
 
         if hitob is not None:
-            write_sentence('{sub} are standing on {a} {ob}'.format(
+            yield sentence('{sub} are standing on {a} {ob}.'.format(
                 sub=you.name, a=self.article(hitob), ob=hitob.name))
             self.recent_obs[hitob.name] = hitob
 
         for ob in self.available_obs:
             if ob is you:
                 continue
-            self.describe_object(ob)
+            yield self.describe_object(ob)
 
     def describe_object(self, ob_or_name):
         ob = self.dereference(ob_or_name)
         neighbour = nearest(ob, self.available_obs)
-        write_sentence('{a} {ob} is near {a2} {ob2}'.format(
-            a=self.article(ob), ob=ob.name,
-            a2=self.article(neighbour), ob2=neighbour))
+        a1 = self.article(ob)
+        a2 = self.article(neighbour)
         self.mention(ob)
         self.mention(neighbour)
+        return sentence('{a} {ob} is near {a2} {ob2}.'.format(
+            a=a1, ob=ob.name,
+            a2=a2, ob2=neighbour))
 
 def render(c):
     r = Renderer()
-    r.describe_scene()
+    for sentence in r.describe_scene():
+        print(sentence)
