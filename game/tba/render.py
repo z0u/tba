@@ -62,7 +62,14 @@ class Perspective:
     A spatial hierarchy of objects.
     '''
 
-    def __init__(self, ref, obs):
+    def __init__(self, ref, obs=None):
+        if obs is None:
+            sce = bge.logic.getCurrentScene()
+            obs = [ob for ob in sce.objects if
+                   ob.visible and
+                   ob.groupMembers is None and
+                   ob.__class__.__name__ not in {'KX_Camera'}]
+
         self.root = Node(ref, None)
         self.nodes = {ref: self.root}
 
@@ -90,6 +97,12 @@ class Perspective:
         self.nodes[ob] = node
         return node
 
+    def get_node(self, ob_or_name):
+        # TODO: extend to allow fuzzy matching.
+        if isinstance(ob_or_name, str):
+            ob = bge.logic.getCurrentScene().objects[ob_or_name]
+        return self.nodes[ob]
+
     def prettyprint(self):
         def _pp(node, indent):
             print(indent + node.ob.name)
@@ -112,7 +125,7 @@ class Node:
         self.children = []
 
 
-class Renderer:
+class Narrator:
     '''
     Generates a textual description of the scene. This object maintains a
     state, which allows it to generate text with context.
@@ -120,13 +133,6 @@ class Renderer:
 
     def __init__(self):
         self.recent_obs = {}
-        sce = bge.logic.getCurrentScene()
-        self.available_obs = [ob for ob in sce.objects if
-                              ob.visible and
-                              ob.groupMembers is None and
-                              ob.__class__.__name__ not in {'KX_Camera'}]
-        self.you = sce.objects['you']
-        self.tree = Perspective(self.you, self.available_obs)
 
     def mention(self, ob):
         self.recent_obs[ob.name] = ob
@@ -143,32 +149,22 @@ class Renderer:
             else:
                 return 'a'
 
-    def dereference(self, ob_or_name):
-        if isinstance(ob_or_name, str):
-            return bge.logic.getCurrentScene().objects[ob_or_name]
-        else:
-            return ob_or_name
-
-    def describe_scene(self):
-        self.available_obs.sort(key=importance_key(self.you), reverse=True)
-        hitob, _, _ = self.you.rayCast(
-            self.you.worldPosition - mathutils.Vector((0, 0, 100)),
-            self.you.worldPosition,
+    def describe_scene(self, tree):
+        you = tree.root.ob
+        ground, _, _ = you.rayCast(
+            you.worldPosition - mathutils.Vector((0, 0, 100)),
+            you.worldPosition,
             100)
 
-        if hitob is not None:
+        if ground is not None:
             yield sentence('{sub} are standing on {a} {ob}.'.format(
-                sub=self.you.name, a=self.article(hitob), ob=hitob.name))
-            self.recent_obs[hitob.name] = hitob
+                sub=you.name, a=self.article(ground), ob=ground.name))
+            self.recent_obs[ground.name] = ground
 
-        for node in self.tree.walk():
-            if node.ob is self.you:
+        for node in tree.walk():
+            if node is tree.root:
                 continue
             yield self.describe_node(node)
-
-    def describe_object(self, ob_or_name):
-        ob = self.dereference(ob_or_name)
-        return self.describe_node(self.tree.nodes[ob])
 
     def describe_node(self, node):
         ob = node.ob
@@ -181,7 +177,10 @@ class Renderer:
             a=a1, ob=ob.name,
             a2=a2, ob2=ref))
 
+
 def render(c):
-    r = Renderer()
-    for sentence in r.describe_scene():
+    sce = bge.logic.getCurrentScene()
+    p = Perspective(sce.objects['you'])
+    n = Narrator()
+    for sentence in n.describe_scene(p):
         print(sentence)
