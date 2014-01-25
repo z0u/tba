@@ -324,7 +324,7 @@ class Narrator:
         ground, _, _ = actor.rayCast(
             actor.worldPosition - mathutils.Vector((0, 0, 100)),
             actor.worldPosition,
-            100, 'room')
+            100)
 
         if ground is not None:
             yield sentence('{sub} are standing on {a} {ob}.'.format(
