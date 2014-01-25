@@ -101,7 +101,7 @@ def exec(cont):
         return
 
     own = globals["own"]
-    text = own["Text"]
+    text_command = own["Text"]
     own["Text"] = ""
     # TODO
 
@@ -110,7 +110,12 @@ def exec(cont):
     n = tba.render.Narrator()
     p = tba.render.Perspective(sce.active_camera)
 
-    text = text + "\n" + " ".join(n.describe_scene(p)) + "\n"
+    text = text_command + "\n" + " ".join(n.describe_scene(p)) + "\n"
+
+    from .parse import parse_command
+
+    text = text + "\n" + parse_command(n, p, text_command)
+
     globals["SCROLLBACK"] += "\n" + text
 
     #print(text)
