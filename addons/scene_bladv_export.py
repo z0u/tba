@@ -109,6 +109,7 @@ class AdvGameConvert(bpy.types.Operator):
     def obj_to_game_props(obj):
         game_props = obj.game.properties
 
+        # CLEAR?
         while game_props:
             bpy.ops.object.game_property_remove({"active_object": obj}, index=0)
 
@@ -122,12 +123,9 @@ class AdvGameConvert(bpy.types.Operator):
                 bpy.ops.object.game_property_remove({"active_object": obj}, index=game_props.find(gprop.name))
                 gprop = None
 
-            # CLEAR?
-            '''
             if gprop is None:
                 bpy.ops.object.game_property_new({"active_object": obj}, name=prop_identifier)
                 gprop = game_props[-1]
-            '''
 
             prop_type = prop.type
             # print(prop.type)
