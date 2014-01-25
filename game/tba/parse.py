@@ -3,7 +3,7 @@ import bge
 def _strip(text_split):
     return [
         w for w in text_split
-        if w not in {"in", "at", "an", "the", "is"}]
+        if w not in {"in", "at", "an", "the", "is", "to", "am"}]
 
 
 def parse_node(p, text):
@@ -34,13 +34,13 @@ def parse_command(n, p, text):
     text_split = text.lower().split()
 
     # basic action/objects
-    if text_split[0] in {"look", "inspect", "check", "investigate"}:
+    if text_split[0] in {"look", "inspect", "check", "investigate", "who"}:
         return _parse_command__verb_object(n, p, text, action.inspect_node)
     if text_split[0] in {"where", "locate"}:
         return _parse_command__verb_object(n, p, text, action.whereis_node)
-    if text_split[0] in {"embody", "become"}:
+    if text_split[0] in {"embody", "become", "cd"}:
         return _parse_command__verb_object(n, p, text, action.embody_node)
-    if text_split[0] in {"move", "go"}:
+    if text_split[0] in {"move", "go", "mv"}:
         return _parse_command__verb_object(n, p, text, action.move_to)
     if text_split[0] in {"quit", "exit"}:
         bge.logic.endGame()
