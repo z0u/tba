@@ -9,8 +9,9 @@ def move_to():
 # ------------------------------------------------------------------------------
 # Object
 
-def become_node():
-    pass
+def embody_node(n, p, node):
+    p.root = node
+    return "You have embodied the {name}".format(name=node.ob.name)
 
 
 def open_node():

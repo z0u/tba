@@ -6,6 +6,8 @@ MARGIN = 0.1
 
 globals = {
     "SCROLLBACK": "",
+    "PERSPECTIVE": None,
+    "NARRATOR": None,
     }
 
 # ------------------------------------------------------------------------------
@@ -83,6 +85,7 @@ def draw_init(cont):
     scene = bge.logic.getCurrentScene()
     scene.post_draw.append(draw_cb)
 
+
 def draw_text_calc():
     """Collects all info and creates the text to draw"""
 
@@ -94,11 +97,22 @@ def draw_text_calc():
 
 # ------------------------------------------------------------------------------
 # Execution
-#
+
+
+def exec_init(cont):
+    import tba
+    sce = bge.logic.getCurrentScene()
+    globals["NARRATOR"] = tba.render.Narrator()
+    globals["PERSPECTIVE"] = tba.render.Perspective(sce.active_camera)
+
+
 def exec(cont):
 
     if not cont.sensors[0].positive:
         return
+
+    # until we have bigger
+    globals["SCROLLBACK"] = ""
 
     own = globals["own"]
     text_command = own["Text"]
@@ -107,8 +121,13 @@ def exec(cont):
 
     import tba.render
     sce = bge.logic.getCurrentScene()
-    n = tba.render.Narrator()
-    p = tba.render.Perspective(sce.active_camera)
+
+    if 0:
+        n = tba.render.Narrator()
+        p = tba.render.Perspective(sce.active_camera)
+    else:
+        n = globals["NARRATOR"]
+        p = globals["PERSPECTIVE"]
 
     text = text_command + "\n" + " ".join(n.describe_scene(p)) + "\n"
 
