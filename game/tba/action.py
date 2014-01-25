@@ -15,7 +15,11 @@ def embody_node(n, p, node):
     tba.prompt.globals["PERSPECTIVE"] = tba.render.Perspective(node.ob)
     #p.root = node
     #p.__init__(p.root.ob)
-    return "You have embodied the {name}".format(name=node.ob.name)
+    embody_descr = node.ob.get("embody_descr", "")
+    if embody_descr:
+        return embody_descr
+    else:
+        return "You have embodied the {name}".format(name=node.ob.name)
 
 
 def open_node():

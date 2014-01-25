@@ -24,6 +24,7 @@ from bpy.props import (
 class AdvGameObject(bpy.types.PropertyGroup):
 
     description = StringProperty()
+    embody_descr = StringProperty()
 
     rel_scale = FloatProperty(
             name="Scale-Relative",
@@ -78,6 +79,9 @@ class AdvGamePanel(bpy.types.Panel):
         col = layout.column(align=True)
         col.prop(obj, "name", text="")
         col.prop(adv, "description", text="")
+
+        layout.label("Embody Text:")
+        layout.prop(adv, "embody_descr", text="")
 
         layout.label("Physical:")
         col = layout.column(align=True)
