@@ -102,8 +102,14 @@ class Perspective:
             ob = bge.logic.getCurrentScene().objects[ob_or_name]
         return self.nodes[ob]
 
-    def get_node_fuzzy(self, ob_or_name, default=None):
-        return self.get_node(ob_or_name)
+    def get_node_fuzzy(self, ob_or_name, default=...):
+        try:
+            return self.get_node(ob_or_name)
+        except KeyError as err:
+            if default is not ...:
+                return default
+            else:
+                raise err
 
     def prettyprint(self):
         def _pp(node, indent):
