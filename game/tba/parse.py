@@ -9,7 +9,7 @@ def _strip(text_split):
 def parse_node(p, text):
     """ Given some text, return an object. """
     scene = bge.logic.getCurrentScene()
-    node = p.get_node_fuzzy(text, default=None)
+    node = p.get_node_fuzzy(text)
     return node
 
 
@@ -18,11 +18,11 @@ def _parse_command__verb_object(n, p, text, fn):
     text_split = text.lower().split()
     text_split = _strip(text_split[1:])
     text_remainder = " ".join(text_split)
-    node_subject = parse_node(p, " ".join(text_split))
-    if node_subject is None:
-        return "{name} can't be found".format(name=text_remainder)
-    else:
-        return fn(n, p, node_subject)
+    try:
+        node_subject = p.get_node_fuzzy(" ".join(text_split))
+    except KeyError as e:
+        return e.args[0]
+    return fn(n, p, node_subject)
 
 
 def parse_command(n, p, text):

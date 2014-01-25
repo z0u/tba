@@ -1,5 +1,6 @@
 import bge
 import mathutils
+import difflib
 
 
 def sentence(text):
@@ -206,14 +207,21 @@ class Perspective:
             ob = bge.logic.getCurrentScene().objects[ob_or_name]
         return self.nodes[ob]
 
-    def get_node_fuzzy(self, ob_or_name, default=...):
-        try:
-            return self.get_node(ob_or_name)
-        except KeyError as err:
-            if default is not ...:
-                return default
-            else:
-                raise err
+    def get_node_fuzzy(self, name):
+        best_ratio = 0.0
+        second_best_ratio = 0.0
+        best_ob = None
+        for ob in self.nodes.keys():
+            ratio = difflib.SequenceMatcher(None, name, ob.name).ratio()
+            if ratio > best_ratio:
+                second_best_ratio = best_ratio
+                best_ob = ob
+                best_ratio = ratio
+        if best_ratio < 0.4:
+            raise KeyError("%s can't be found" % name)
+        if best_ratio - 0.1 < second_best_ratio:
+            raise KeyError("%s is ambiguous" % name)
+        return self.nodes[best_ob]
 
     def prettyprint(self):
         def _pp(node, indent):
