@@ -45,11 +45,12 @@ def kd(ob):
         tree = mathutils.kdtree.KDTree(1)
         tree.insert((0, 0, 0), 0)
     else:
+        verts = {tuple(v.XYZ) for v in vert_iter(ob)}
         # Add all vertices plus one at the centre.
         tree = mathutils.kdtree.KDTree(n + 1)
         tree.insert((0, 0, 0), 0)
-        for i, v in enumerate(vert_iter(ob)):
-            tree.insert(v.XYZ, i)
+        for i, v in enumerate(verts):
+            tree.insert(v, i)
 
     tree.balance()
     ob['_kdtree'] = tree
@@ -190,7 +191,7 @@ class Perspective:
             if ob in self.nodes:
                 continue
 
-            # Ensure object is visislbe. Should look at each vertex? Currently
+            # Ensure object is visible. Should look at each vertex? Currently
             # just checks centroids.
             if visibility(ob, self.root.ob) < 0.01:
                 continue
