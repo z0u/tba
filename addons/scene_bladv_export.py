@@ -58,6 +58,20 @@ class AdvGamePanel(bpy.types.Panel):
         layout = self.layout
 
         obj = context.object
+
+        if obj is None:
+            layout.label("No object")
+            return
+
+        if obj.dupli_group:
+            obs = obj.dupli_group.objects
+            if len(obs) > 1:
+                layout.label("Group object! (edit library)")
+                return
+            layout.label("Group: '%s'" % obj.dupli_group.name)
+            obj = obs[0]
+            del obs
+
         adv = obj.adv
 
         layout.label("Name, Descr:")
@@ -128,7 +142,8 @@ class AdvGameConvert(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         for obj in scene.objects:
-            self.obj_to_game_props(obj)
+            if obj.dupli_group is None:
+                self.obj_to_game_props(obj)
         return {'FINISHED'}
 
 
