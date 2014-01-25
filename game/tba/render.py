@@ -365,6 +365,8 @@ class Narrator:
             'distant', 'far', 'near']:
             if name.startswith(loc):
                 return True
+        if name in {"sun"}:
+            return True
         return False
 
     def article(self, ob):
