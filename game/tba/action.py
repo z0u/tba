@@ -49,8 +49,9 @@ def _is_validpath(ob_a, ob_b):
 
     def close_point(pt, limit=5.0):
         cos = [(i, co) for i, co in enumerate(verts_new)]
-        cos.sort(key=lambda v: (v[1] - pt).length)
-        length = (cos[0][1] - pt).length
+        cos.sort(key=lambda v: (v[1] - pt).xy.length)
+        length = (cos[0][1] - pt).xy.length
+        print("LENGTH:", length)
         if length < limit:
             return cos[0][0]
         else:
