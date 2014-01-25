@@ -92,7 +92,7 @@ def draw_text_calc():
     own = globals["own"]
     text = own["Text"]
 
-    return globals["SCROLLBACK"] + "\n" + text
+    return globals["SCROLLBACK"] + "\n> " + text
 
 
 # ------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ def exec(cont):
     from .parse import parse_command
 
     text_ls = []
-    text_ls.append(text_command)
+    text_ls.append("> " + text_command)
     text_ls.append(parse_command(n, p, text_command))
 
     p = globals["PERSPECTIVE"]
