@@ -374,28 +374,43 @@ class Narrator:
         #    return "in"
 
         # Now look at the surface of the target object.
-        co, dist = closest_point(ref, ob)
-        #print(ref, ob, co, dist)
-        vec = ob.worldPosition - co
-        #dist = vec.magnitude - ref.get('size', 1.0)
+        co1, dist1 = closest_point(ref, ob)
+        co2, dist2 = closest_point(ob, ref)
+        #print("%s -> %s: %g" % (ob, ref, dist1))
+        #print("%s -> %s: %g" % (ref, ob, dist2))
+        if dist1 < dist2:
+            dist = dist1
+            vec = ob.worldPosition - co1
+        else:
+            dist = dist2
+            vec = co2 - ref.worldPosition
 
         # For over/under, check dot product first.
         # TODO: this stuff should be incorporated into the perspective tree
         # builder to generate better trees.
         dot = vec.normalized().dot((0,0,1))
-        #print(ob, ref, dot, vec)
         if abs(dot) > 0.9:
+            if vec.z > 100:
+                return "far above"
             if vec.z > 2.0:
                 return "over"
             elif vec.z > 0.0:
                 return "on"
-            elif vec.z < 0.0:
+            elif vec.z < -100:
+                return "far below"
+            elif vec.z < -2:
+                return "below"
+            else: # vec.z < 0.0:
                 return "under"
 
         if dist < 2.0:  # 1.0 would be strict but 2.0 is ok
             return "next to"
-        else:
+        elif dist < 20:
             return "near"
+        elif dist < 100:
+            return "in the general vacinity of"
+        else:
+            return "far away from"
 
     def describe_scene(self, tree):
         actor = tree.root.ob
