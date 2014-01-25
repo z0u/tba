@@ -392,6 +392,8 @@ class Narrator:
         for node in tree.walk():
             if node is tree.root:
                 continue
+            if node.ob is ground:
+                continue
             yield self.describe_node_loc(node)
 
     def describe_node(self, node):
@@ -424,6 +426,7 @@ class Narrator:
 
 
 def test(c):
+    return
     sce = bge.logic.getCurrentScene()
     p = Perspective(sce.active_camera)
     p.prettyprint()
