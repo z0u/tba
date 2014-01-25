@@ -294,13 +294,6 @@ class Perspective:
                 _pp(c, indent + '\t')
         _pp(self.root, '')
 
-    def walk(self):
-        def _walk(node):
-            yield node
-            for c in node.children:
-                yield from _walk(c)
-        yield from _walk(self.root)
-
 
 class Node:
     def __init__(self, ob, parent, perspective):
