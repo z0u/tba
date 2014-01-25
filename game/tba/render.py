@@ -14,6 +14,59 @@ def p(ob, prop, default=None):
         return default
 
 
+def vert_num(ob):
+    if len(ob.meshes) == 0:
+        raise AttributeError
+    me = ob.meshes[0]
+    n = 0
+    for m_i in range(len(me.materials)):
+        n += me.getVertexArrayLength(m_i)
+    return n
+
+
+def vert_iter(ob):
+    if len(ob.meshes) == 0:
+        raise AttributeError
+    me = ob.meshes[0]
+    for m_i in range(len(me.materials)):
+        for v_i in range(me.getVertexArrayLength(m_i)):
+            yield me.getVertex(m_i, v_i)
+
+
+def kd(ob):
+    if '_kdtree' in ob:
+        return ob['_kdtree']
+
+    try:
+        n = vert_num(ob)
+    except AttributeError:
+        # No mesh; just use one "vertex" at the centre.
+        tree = mathutils.kdtree.KDTree(1)
+        tree.insert((0, 0, 0), 0)
+    else:
+        # Add all vertices plus one at the centre.
+        tree = mathutils.kdtree.KDTree(n + 1)
+        tree.insert((0, 0, 0), 0)
+        for i, v in enumerate(vert_iter(ob)):
+            tree.insert(v.XYZ, i)
+
+    tree.balance()
+    ob['_kdtree'] = tree
+    return tree
+
+
+def closest_point(ob, ref):
+    mat = ob.worldTransform
+    mat_inv = mat.inverted()
+
+    ref_pos = mat_inv * ref.worldPosition
+    co, i, dist = kd(ob).find(ref_pos)
+
+    co = mat * co
+    dist *= mat.median_scale
+    return co, dist
+
+
 class distance_key:
     '''For sorting objects based on distance from a reference point.'''
     def __init__(self, ref):
@@ -34,15 +87,18 @@ class importance_key:
         self.ref_pos = self.ref.worldPosition
 
     def __call__(self, ob):
-        dist = (self.ref_pos - ob.worldPosition).magnitude
+        co, dist = closest_point(ob, self.ref)
+        print("{} -> {}: dist={}, co={}".format(self.ref.name, ob, dist, co))
+
         # Adjust distance to account for object size (so touching objects have
         # distance of 0).
-        dist -= p(self.ref, 'size', 1.0) + p(ob, 'size', 1.0)
+        dist -= p(self.ref, 'size', 1.0)# + p(ob, 'size', 1.0)
         dist = max(0, dist)
         # Avoid div0
         dist += 1
 
-        importance = p(ob, 'size', 1.0) * p(ob, 'rel_size', 1.0)
+        #importance = p(ob, 'size', 1.0) * p(ob, 'rel_size', 1.0)
+        importance = p(ob, 'rel_size', 1.0)
 
 #        print(ob, dist, importance)
         return importance / (dist * dist)
@@ -195,8 +251,10 @@ class Narrator:
 def test(c):
     sce = bge.logic.getCurrentScene()
     p = Perspective(sce.active_camera)
+    p.prettyprint()
     n = Narrator()
     for sentence in n.describe_scene(p):
         print(sentence)
 
+    print()
     print(n.describe_node(p.get_node('monkey')))
