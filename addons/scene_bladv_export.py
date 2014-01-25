@@ -41,7 +41,7 @@ class AdvGameObject(bpy.types.PropertyGroup):
             description="Can pickup this object",
             default=False,
             )
-    state = EnumProperty(
+    solid_state = EnumProperty(
             items=(('SOLID', "Solid", ""),
                    ('LIQUID', "Liquid", ""),
                    ('GAS', "Gas", "")),
@@ -62,6 +62,10 @@ class AdvGamePanel(bpy.types.Panel):
 
         if obj is None:
             layout.label("No object")
+            return
+
+        if obj.type == 'CAMERA':
+            layout.label("Camera object")
             return
 
         if obj.dupli_group:
@@ -86,7 +90,7 @@ class AdvGamePanel(bpy.types.Panel):
         layout.label("Physical:")
         col = layout.column(align=True)
         row = col.row(align=True)
-        row.prop(adv, "state", expand=True)
+        row.prop(adv, "solid_state", expand=True)
         col.prop(adv, "rel_scale")
         col.prop(adv, "opacity")
 
@@ -105,9 +109,12 @@ class AdvGameConvert(bpy.types.Operator):
     def obj_to_game_props(obj):
         game_props = obj.game.properties
 
+        while game_props:
+            bpy.ops.object.game_property_remove({"active_object": obj}, index=0)
+
         for prop_identifier, prop in bpy.types.AdvGameObject.bl_rna.properties.items():
-            print(prop_identifier)
-            if prop_identifier == "rna_type":
+            print("PROP:", prop_identifier)
+            if prop_identifier in {"rna_type", "name"}:
                 continue
 
             gprop = game_props.get(prop_identifier)
@@ -115,9 +122,12 @@ class AdvGameConvert(bpy.types.Operator):
                 bpy.ops.object.game_property_remove({"active_object": obj}, index=game_props.find(gprop.name))
                 gprop = None
 
+            # CLEAR?
+            '''
             if gprop is None:
                 bpy.ops.object.game_property_new({"active_object": obj}, name=prop_identifier)
                 gprop = game_props[-1]
+            '''
 
             prop_type = prop.type
             # print(prop.type)
@@ -146,7 +156,7 @@ class AdvGameConvert(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         for obj in scene.objects:
-            if obj.dupli_group is None:
+            if obj.dupli_group is None and obj.type != 'CAMERA':
                 self.obj_to_game_props(obj)
         return {'FINISHED'}
 
