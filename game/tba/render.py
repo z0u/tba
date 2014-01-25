@@ -113,6 +113,39 @@ def nearest(ob, obs):
     return None
 
 
+def rayCastIterate(ob_to, ob_from, co_from=None, dist=0, prop='', face=0, xray=0, poly=0):
+    if co_from is None:
+        co_from = ob_from.worldPosition
+
+    if hasattr(ob_to, 'worldPosition'):
+        co_to = ob_to.worldPosition
+    else:
+        co_to = ob_to
+
+    vec = co_to - co_from
+    epsilon = vec.normalized() * 0.01
+    while True:
+        ob, co, nor = ob_from.rayCast(co_to, co_from, dist, prop, face, xray, poly)
+        yield ob, co, nor
+        co_from = co + epsilon
+
+
+def visibility(ob, ref, limit=0.01):
+    vis = 1.0
+    print('visibility', ob, ref)
+    for hitob, co, nor in rayCastIterate(ob, ref):
+        print('\t', hitob)
+        if hitob is ob:
+            return vis
+        if hitob is None:
+            # In this case, we've reached the centre of a meshless object.
+            return vis
+        vis *= 1.0 - p(hitob, 'opacity', 1.0)
+        if vis < limit:
+            break
+    return vis
+
+
 class Perspective:
     '''
     A spatial hierarchy of objects.
@@ -148,6 +181,12 @@ class Perspective:
         for ob in obs:
             if ob in self.nodes:
                 continue
+
+            # Ensure object is visislbe. Should look at each vertex? Currently
+            # just checks centroids.
+            if visibility(ob, self.root.ob) < 0.01:
+                continue
+
             obs2.sort(key=importance_key(ob), reverse=True)
             for ob2 in obs2:
                 if ob2 in self.nodes:
