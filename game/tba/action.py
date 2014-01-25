@@ -11,6 +11,12 @@ def move_to():
 
 def embody_node(n, p, node):
     import tba
+    import bge
+
+    sce = bge.logic.getCurrentScene()
+    new_view = tba.render.nearest_view(node.ob, sce.objects)
+    if new_view:
+        sce.active_camera = new_view
 
     tba.prompt.globals["PERSPECTIVE"] = tba.render.Perspective(node.ob)
     #p.root = node

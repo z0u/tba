@@ -114,6 +114,15 @@ def nearest(ob, obs):
     return None
 
 
+def nearest_view(ob, obs):
+    obs = [o for o in obs if o.__class__.__name__ == 'KX_Camera']
+    loc = ob.worldPosition
+    obs.sort(key=lambda o: (loc - o.worldPosition).length)
+    for other in obs:
+        # check if we can use?
+        return other
+
+
 def rayCastIterate(ob_to, ob_from, co_from=None, dist=0, prop='', face=0, xray=0, poly=0):
     if co_from is None:
         co_from = ob_from.worldPosition
