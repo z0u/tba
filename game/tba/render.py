@@ -221,20 +221,31 @@ class Narrator:
         return '{a} {ob}'.format(a=self.article(ob), ob=ob.name)
 
     def preposition(self, ob, ref):
+        # First, special case for objects that are inside!
         vec = ob.worldPosition - ref.worldPosition
         dist = vec.magnitude - p(ref, 'size', 1.0)
         if dist < 0:
             return "in"
-        elif vec.z > 1.0:
-            return "over"
-        elif vec.z > 0.5:
-            return "on"
-        elif vec.z < -0.5:
-            return "under"
-        elif dist < 1.0:
-            return "next to"
+
+        # Now look at the surface of the target object.
+        co, dist = closest_point(ob, ref)
+        vec = co - ref.worldPosition
+        dist = vec.magnitude - p(ref, 'size', 1.0)
+
+        # For over/under, check dot product first.
+        dot = vec.dot((0,0,1))
+        if abs(dot) > 0.5:
+            if vec.z > 1.0:
+                return "over"
+            elif vec.z > 0.5:
+                return "on"
+            elif vec.z < -0.5:
+                return "under"
         else:
-            return "near"
+            if dist < 1.0:
+                return "next to"
+            else:
+                return "near"
 
     def describe_scene(self, tree):
         you = tree.root.ob
