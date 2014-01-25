@@ -219,9 +219,8 @@ class Perspective:
                     continue
                 if ob.groupMembers is not None:
                     continue
-                if ob.__class__.__name__ == 'KX_Camera':
-                    if ob is not sce.active_camera:
-                        continue
+                if hasattr(ob, 'fov'):
+                    continue
                 obs.append(ob)
 
         self.root = Node(ref, None, self)
@@ -324,7 +323,16 @@ class Narrator:
         self.recent_obs[ob.name] = ob
 
     def is_definite_article(self, ob):
-        return ob.name in self.recent_obs and self.recent_obs[ob.name] is ob
+        if ob.name in self.recent_obs and self.recent_obs[ob.name] is ob:
+            return True
+        name = ob.name.lower()
+        for loc in [
+            'north', 'east', 'south', 'west',
+            'left', 'right', 'upper', 'lower'
+            'distant', 'far', 'near']:
+            if name.startswith(loc):
+                return True
+        return False
 
     def article(self, ob):
         if self.is_definite_article(ob):
@@ -377,7 +385,7 @@ class Narrator:
             100)
 
         if ground is not None:
-            yield sentence('you are standing on {a} {ob}.'.format(
+            yield sentence('you are on {a} {ob}.'.format(
                 a=self.article(ground), ob=ground.name))
             self.recent_obs[ground.name] = ground
 
