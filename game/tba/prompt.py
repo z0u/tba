@@ -117,6 +117,8 @@ def exec(cont):
     own = globals["own"]
     text_command = own["Text"]
     own["Text"] = ""
+    if not text_command:
+        return
     # TODO
 
     import tba.render
@@ -129,13 +131,19 @@ def exec(cont):
         n = globals["NARRATOR"]
         p = globals["PERSPECTIVE"]
 
-    text = text_command + "\n" + " ".join(n.describe_scene(p)) + "\n"
 
     from .parse import parse_command
 
-    text = text + "\n" + parse_command(n, p, text_command)
+    text_ls = []
+    text_ls.append(text_command)
+    text_ls.append(parse_command(n, p, text_command))
+    text_ls.append(" ".join(n.describe_scene(p)))
 
-    globals["SCROLLBACK"] += "\n" + text
+    p = globals["PERSPECTIVE"]
+    p.prettyprint()
+
+
+    globals["SCROLLBACK"] += "\n".join(text_ls)
 
     #print(text)
 
