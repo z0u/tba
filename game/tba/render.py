@@ -254,7 +254,7 @@ class Narrator:
             elif vec.z < -0.5:
                 return "under"
         else:
-            if dist < 1.0:
+            if dist < 2.0:  # 1.0 would be strict but 2.0 is ok
                 return "next to"
             else:
                 return "near"

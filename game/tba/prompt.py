@@ -1,6 +1,6 @@
 import bge
 
-FONT_SIZE = 12
+FONT_SIZE = 18
 SMART_WRAP = True
 MARGIN = 0.1
 
