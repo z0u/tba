@@ -454,7 +454,7 @@ class Narrator:
                 self.mention(context.ob)
             if len(statements) > 1:
                 text = ", ".join(statements[:-1])
-                text += ", and " + statements[-1] + " too"
+                text += ", and " + statements[-1]
             elif len(statements) == 1:
                 text = statements[0]
             else:
