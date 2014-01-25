@@ -89,7 +89,7 @@ class importance_key:
 
     def __call__(self, ob):
         co, dist = closest_point(ob, self.ref)
-        print("{} -> {}: dist={}, co={}".format(self.ref.name, ob, dist, co))
+        #print("{} -> {}: dist={}, co={}".format(self.ref.name, ob, dist, co))
 
         # Adjust distance to account for object size (so touching objects have
         # distance of 0).
@@ -142,9 +142,7 @@ def rayCastIterate(ob_to, ob_from, co_from=None, dist=0, prop='', face=0, xray=0
 
 def visibility(ob, ref, limit=0.01):
     vis = 1.0
-    print('visibility', ob, ref)
     for hitob, co, nor in rayCastIterate(ob, ref):
-        print('\t', hitob)
         if hitob is ob:
             return vis
         if hitob is None:
@@ -367,5 +365,5 @@ def test(c):
     for sentence in n.describe_scene(p):
         print(sentence)
 
-    print()
-    print(n.describe_node(p.get_node('monkey')))
+    #print()
+    #print(n.describe_node(p.get_node('monkey')))
