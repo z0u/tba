@@ -218,9 +218,9 @@ class Perspective:
                 best_ob = ob
                 best_ratio = ratio
         if best_ratio < 0.4:
-            raise KeyError("%s can't be found" % name)
-        if best_ratio - 0.1 < second_best_ratio:
-            raise KeyError("%s is ambiguous" % name)
+            raise KeyError("%s can't be found." % name)
+        if best_ratio - 0.05 < second_best_ratio:
+            raise KeyError("%s is ambiguous. Please be more specific." % name)
         return self.nodes[best_ob]
 
     def prettyprint(self):
