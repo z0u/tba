@@ -220,6 +220,22 @@ class Narrator:
 
         return '{a} {ob}'.format(a=self.article(ob), ob=ob.name)
 
+    def preposition(self, ob, ref):
+        vec = ob.worldPosition - ref.worldPosition
+        dist = vec.magnitude - p(ref, 'size', 1.0)
+        if dist < 0:
+            return "in"
+        elif vec.z > 1.0:
+            return "over"
+        elif vec.z > 0.5:
+            return "on"
+        elif vec.z < -0.5:
+            return "under"
+        elif dist < 1.0:
+            return "next to"
+        else:
+            return "near"
+
     def describe_scene(self, tree):
         you = tree.root.ob
         ground, _, _ = you.rayCast(
@@ -241,8 +257,9 @@ class Narrator:
     def describe_node(self, node):
         ob = node.ob
         ref = node.parent.ob
-        sen = sentence('{s} is near {ob}.'.format(
-            s=self.nounphrase(ob), ob=self.nounphrase(ref)))
+        sen = sentence('{s} is {prep} {ob}.'.format(
+            s=self.nounphrase(ob), prep=self.preposition(ob, ref),
+            ob=self.nounphrase(ref)))
         self.mention(ob)
         self.mention(ref)
         return sen
