@@ -101,9 +101,19 @@ def draw_text_calc():
 
 def exec_init(cont):
     import tba
+    import tba.action
     sce = bge.logic.getCurrentScene()
+
+
+    # this could be moved  to action.py
+    ob = sce.objects["_WAYPOINTS"]
+    globals["WAYPOINTS"] = tba.action._parse_nodegraph(ob)
+    ob.endObject()
+
+
     globals["NARRATOR"] = tba.render.Narrator()
     globals["PERSPECTIVE"] = tba.render.Perspective(sce.active_camera)
+
 
 
 def exec(cont):

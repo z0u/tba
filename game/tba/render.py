@@ -2,6 +2,9 @@ import bge
 import mathutils
 import difflib
 
+# distance which is considered far
+GLOBAL_FAR = 100.0
+
 
 def sentence(text):
     return text[0].upper() + text[1:]
