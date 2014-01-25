@@ -38,6 +38,8 @@ def parse_command(n, p, text):
         return _parse_command__verb_object(n, p, text, action.inspect_node)
     if text_split[0] in {"embody", "become"}:
         return _parse_command__verb_object(n, p, text, action.embody_node)
+    if text_split[0] in {"quit", "exit"}:
+        bge.logic.endGame()
 
     return "Not sure what you mean"
 
