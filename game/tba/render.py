@@ -336,28 +336,29 @@ class Narrator:
         return '{a} {ob}'.format(a=self.article(ob), ob=ob.name)
 
     def preposition(self, ob, ref):
-        # First, special case for objects that are inside!
-        vec = ob.worldPosition - ref.worldPosition
-        dist = vec.magnitude - p(ref, 'size', 1.0)
-        if dist < 0:
-            return "in"
+        ## First, special case for objects that are inside!
+        #vec = ob.worldPosition - ref.worldPosition
+        #dist = vec.magnitude - p(ref, 'size', 1.0)
+        #if dist < 0:
+        #    return "in"
 
         # Now look at the surface of the target object.
-        co, dist = closest_point(ob, ref)
-        vec = co - ref.worldPosition
-        dist = vec.magnitude - p(ref, 'size', 1.0)
+        co, dist = closest_point(ref, ob)
+        print(ref, ob, co, dist)
+        vec = ob.worldPosition - co
+        #dist = vec.magnitude - p(ref, 'size', 1.0)
 
         # For over/under, check dot product first.
         # TODO: this stuff should be incorporated into the perspective tree
         # builder to generate better trees.
         dot = vec.normalized().dot((0,0,1))
-        print(ob, ref, dot)
-        if abs(dot) > 0.707:
-            if vec.z > 1.0:
+        print(ob, ref, dot, vec)
+        if abs(dot) > 0.9:
+            if vec.z > 2.0:
                 return "over"
-            elif vec.z > 0.5:
+            elif vec.z > 0.0:
                 return "on"
-            elif vec.z < -0.5:
+            elif vec.z < 0.0:
                 return "under"
 
         if dist < 2.0:  # 1.0 would be strict but 2.0 is ok
