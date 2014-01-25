@@ -137,9 +137,10 @@ def exec(cont):
     text_ls = []
     text_ls.append(text_command)
     text_ls.append(parse_command(n, p, text_command))
-    text_ls.append(" ".join(n.describe_scene(p)))
 
     p = globals["PERSPECTIVE"]
+    text_ls.append(" ".join(n.describe_scene(p)))
+
     p.prettyprint()
 
 

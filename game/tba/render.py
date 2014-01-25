@@ -121,11 +121,18 @@ class Perspective:
     def __init__(self, ref, obs=None):
         if obs is None:
             sce = bge.logic.getCurrentScene()
-            obs = [ob for ob in sce.objects if
-                   ob.visible and
-                   not ob.name.startswith('_') and
-                   ob.groupMembers is None and
-                   ob.__class__.__name__ not in {'KX_Camera'}]
+            obs = []
+            for ob in sce.objects:
+                if not ob.visible:
+                    continue
+                if ob.name.startswith('_'):
+                    continue
+                if ob.groupMembers is not None:
+                    continue
+                if ob.__class__.__name__ == 'KX_Camera':
+                    if ob is not sce.active_camera:
+                        continue
+                obs.append(ob)
 
         self.root = Node(ref, None)
         self.nodes = {ref: self.root}
@@ -139,6 +146,8 @@ class Perspective:
         obs2 = list(obs)
         obs2.append(self.root.ob)
         for ob in obs:
+            if ob in self.nodes:
+                continue
             obs2.sort(key=importance_key(ob), reverse=True)
             for ob2 in obs2:
                 if ob2 in self.nodes:
