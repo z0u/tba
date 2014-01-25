@@ -25,7 +25,7 @@ class AdvGameObject(bpy.types.PropertyGroup):
 
     description = StringProperty()
 
-    scale_relative = FloatProperty(
+    rel_scale = FloatProperty(
             name="Scale-Relative",
             default=0.0,
             )
@@ -69,7 +69,7 @@ class AdvGamePanel(bpy.types.Panel):
         col = layout.column(align=True)
         row = col.row(align=True)
         row.prop(adv, "state", expand=True)
-        col.prop(adv, "scale_relative")
+        col.prop(adv, "rel_scale")
         col.prop(adv, "opacity")
 
         layout.label("Interact:")
