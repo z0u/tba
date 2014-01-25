@@ -242,8 +242,11 @@ class Narrator:
         dist = vec.magnitude - p(ref, 'size', 1.0)
 
         # For over/under, check dot product first.
-        dot = vec.dot((0,0,1))
-        if abs(dot) > 0.5:
+        # TODO: this stuff should be incorporated into the perspective tree
+        # builder to generate better trees.
+        dot = vec.normalized().dot((0,0,1))
+        print(ob, ref, dot)
+        if abs(dot) > 0.707:
             if vec.z > 1.0:
                 return "over"
             elif vec.z > 0.5:
