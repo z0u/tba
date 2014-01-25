@@ -310,6 +310,39 @@ class Node:
         self.perspective = perspective
 
 
+class MultiDict:
+    def __init__(self):
+        self.store = {}
+
+    def __contains__(self, k):
+        return self.store.__contains__(k)
+
+    def __len__(self):
+        return self.store.__len__()
+
+    def __delitem__(self, k):
+        return self.store.__delitem__(k)
+
+    def __getitem__(self, k):
+        return self.store.__getitem__(k)
+
+    def __setitem__(self, k, v):
+        try:
+            ls = self.store[k]
+        except KeyError:
+            self.store[k] = ls = []
+        ls.append(v)
+
+    def items(self):
+        return self.store.items()
+
+    def keys(self):
+        return self.store.keys()
+
+    def values(self):
+        return self.store.values()
+
+
 class Narrator:
     '''
     Generates a textual description of the scene. This object maintains a
@@ -389,12 +422,51 @@ class Narrator:
                 a=self.article(ground), ob=ground.name))
             self.recent_obs[ground.name] = ground
 
-        for node in tree.walk():
-            if node is tree.root:
+        stack = [tree.root]
+        while len(stack) > 0:
+            context = stack.pop()
+            like_relations = MultiDict()
+            for node in context.children:
+                stack.append(node)
+                if node.ob is ground:
+                    continue
+                prep = self.preposition(node.ob, context.ob)
+                like_relations[prep] = node
+            statements = []
+            first = True
+            for prep, nodes in like_relations.items():
+                #print(context.ob, prep, nodes)
+                nps = []
+                for n in nodes:
+                    nps.append(self.nounphrase(n.ob))
+                if len(nps) > 1:
+                    template = '{s} are {prep} {ob}'
+                    subject = ", ".join(nps[:-1])
+                    subject += " and " + nps[-1]
+                else:
+                    template = '{s} is {prep} {ob}'
+                    subject = nps[0]
+
+                if first:
+                    ob = self.nounphrase(context.ob)
+                    first = False
+                else:
+                    ob = "it"
+
+                statements.append(template.format(s=subject, prep=prep, ob=ob))
+                for n in nodes:
+                    self.mention(n.ob)
+                self.mention(context.ob)
+            if len(statements) > 1:
+                text = ", ".join(statements[:-1])
+                text += ", and " + statements[-1] + " too"
+            elif len(statements) == 1:
+                text = statements[0]
+            else:
                 continue
-            if node.ob is ground:
-                continue
-            yield self.describe_node_loc(node)
+            text += "."
+            text = sentence(text)
+            yield text
 
     def describe_node(self, node):
         ob = node.ob
