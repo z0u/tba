@@ -29,3 +29,7 @@ def close_node():
 def inspect_node(n, p, node):
     return n.describe_node(node)
 
+
+def whereis_node(n, p, node):
+    return n.describe_node_loc(node)
+

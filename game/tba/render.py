@@ -275,9 +275,18 @@ class Narrator:
         for node in tree.walk():
             if node is tree.root:
                 continue
-            yield self.describe_node(node)
+            yield self.describe_node_loc(node)
 
     def describe_node(self, node):
+        ob = node.ob
+        if 'description' in ob:
+            text = ob['description']
+        else:
+            text = "It's just {ob}.".format(ob=self.nounphrase(ob))
+        self.mention(ob)
+        return text
+
+    def describe_node_loc(self, node):
         ob = node.ob
         ref = node.parent.ob
         text = sentence('{s} is {prep} {ob}.'.format(
@@ -285,10 +294,6 @@ class Narrator:
             ob=self.nounphrase(ref)))
         self.mention(ob)
         self.mention(ref)
-        if 'description' in ob:
-            text += ' ' + ob['description']
-        if not text.endswith('.'):
-            text += '.'
         return text
 
 

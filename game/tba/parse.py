@@ -36,6 +36,8 @@ def parse_command(n, p, text):
     # basic action/objects
     if text_split[0] in {"look", "inspect", "check", "investigate"}:
         return _parse_command__verb_object(n, p, text, action.inspect_node)
+    if text_split[0] in {"where", "locate"}:
+        return _parse_command__verb_object(n, p, text, action.whereis_node)
     if text_split[0] in {"embody", "become"}:
         return _parse_command__verb_object(n, p, text, action.embody_node)
     if text_split[0] in {"quit", "exit"}:
