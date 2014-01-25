@@ -178,7 +178,7 @@ class Perspective:
 
     def prettyprint(self):
         def _pp(node, indent):
-            print(indent + node.ob.name)
+            print("%s%s" % (indent, node.ob.name))
             for c in node.children:
                 _pp(c, indent + '\t')
         _pp(self.root, '')
@@ -260,15 +260,15 @@ class Narrator:
                 return "near"
 
     def describe_scene(self, tree):
-        you = tree.root.ob
-        ground, _, _ = you.rayCast(
-            you.worldPosition - mathutils.Vector((0, 0, 100)),
-            you.worldPosition,
-            100)
+        actor = tree.root.ob
+        ground, _, _ = actor.rayCast(
+            actor.worldPosition - mathutils.Vector((0, 0, 100)),
+            actor.worldPosition,
+            100, 'room')
 
         if ground is not None:
             yield sentence('{sub} are standing on {a} {ob}.'.format(
-                sub=self.nounphrase(you), a=self.article(ground),
+                sub=self.nounphrase(actor), a=self.article(ground),
                 ob=ground.name))
             self.recent_obs[ground.name] = ground
 
