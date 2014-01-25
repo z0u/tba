@@ -208,6 +208,12 @@ class Perspective:
         return self.nodes[ob]
 
     def get_node_fuzzy(self, name):
+        # Exact match first.
+        for ob in self.nodes.keys():
+            if ob.name.lower() == name.lower():
+                return self.nodes[ob]
+
+        # No exact match; now fuzzy match!
         best_ratio = 0.0
         second_best_ratio = 0.0
         best_ob = None
