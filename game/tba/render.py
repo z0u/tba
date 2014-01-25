@@ -15,9 +15,11 @@ def p(ob, prop, default=None):
         return default
 
 
+def has_mesh(ob):
+    return len(ob.meshes) > 0
+
+
 def vert_num(ob):
-    if len(ob.meshes) == 0:
-        raise AttributeError
     me = ob.meshes[0]
     n = 0
     for m_i in range(len(me.materials)):
@@ -26,8 +28,6 @@ def vert_num(ob):
 
 
 def vert_iter(ob):
-    if len(ob.meshes) == 0:
-        raise AttributeError
     me = ob.meshes[0]
     for m_i in range(len(me.materials)):
         for v_i in range(me.getVertexArrayLength(m_i)):
@@ -38,13 +38,12 @@ def kd(ob):
     if '_kdtree' in ob:
         return ob['_kdtree']
 
-    try:
-        n = vert_num(ob)
-    except AttributeError:
+    if not has_mesh(ob):
         # No mesh; just use one "vertex" at the centre.
         tree = mathutils.kdtree.KDTree(1)
         tree.insert((0, 0, 0), 0)
     else:
+        n = vert_num(ob)
         verts = {tuple(v.XYZ) for v in vert_iter(ob)}
         # Add all vertices plus one at the centre.
         tree = mathutils.kdtree.KDTree(n + 1)
@@ -57,10 +56,49 @@ def kd(ob):
     return tree
 
 
+_search_vecs = []
+
+
+def search_vecs():
+    if len(_search_vecs) > 0:
+        return _search_vecs
+    sce = bge.logic.getCurrentScene()
+    space = sce.objects['_SearchSpace']
+    # Transform into tuples to allow hashing in a set.
+    verts = {tuple(v.XYZ) for v in vert_iter(space)}
+    # Transform back into a list of vectors.
+    _search_vecs.extend(mathutils.Vector(v) for v in verts)
+    return _search_vecs
+
+
 def closest_point(ob, ref):
+    pos_from = ref.worldPosition
+    if not has_mesh(ob):
+        vec = pos_from - ob.worldPosition
+        vec.magnitude = p(ob, 'size', 1.0)
+        co = ob.worldPosition + vec
+        return co, (co - pos_from).magnitude
+
+    closest = None
+    min_dist = 0.0
+    # Search everywhere!
+    for vec in search_vecs():
+        pos_through = pos_from + vec
+        for hitob, co, nor in rayCastIterate(
+            pos_through, ref, co_from=pos_from, dist=100):
+            if hitob is not ob:
+                continue
+            dist = (pos_from - co).magnitude
+            if closest is None or dist < min_dist:
+                closest = co
+                min_dist = dist
+
+    if closest is not None:
+        return closest, min_dist
+
+    # Fall back to KD tree search for nearest verts...
     mat = ob.worldTransform
     mat_inv = mat.inverted()
-
     ref_pos = mat_inv * ref.worldPosition
     co, i, dist = kd(ob).find(ref_pos)
 
@@ -134,11 +172,18 @@ def rayCastIterate(ob_to, ob_from, co_from=None, dist=0, prop='', face=0, xray=0
         co_to = ob_to
 
     vec = co_to - co_from
-    epsilon = vec.normalized() * 0.01
+    vec.normalize()
+    epsilon = vec * 0.001
+    co_from -= epsilon
     while True:
+        #print(co_to, co_from, epsilon)
         ob, co, nor = ob_from.rayCast(co_to, co_from, dist, prop, face, xray, poly)
+        if ob is None:
+            break
         yield ob, co, nor
         co_from = co + epsilon
+        if vec.dot(co_to - co_from) < 0:
+            break
 
 
 def visibility(ob, ref, limit=0.01):
@@ -314,11 +359,11 @@ class Narrator:
                 return "on"
             elif vec.z < -0.5:
                 return "under"
+
+        if dist < 2.0:  # 1.0 would be strict but 2.0 is ok
+            return "next to"
         else:
-            if dist < 2.0:  # 1.0 would be strict but 2.0 is ok
-                return "next to"
-            else:
-                return "near"
+            return "near"
 
     def describe_scene(self, tree):
         actor = tree.root.ob
