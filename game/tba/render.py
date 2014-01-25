@@ -224,7 +224,7 @@ class Perspective:
                         continue
                 obs.append(ob)
 
-        self.root = Node(ref, None)
+        self.root = Node(ref, None, self)
         self.nodes = {ref: self.root}
 
         used_obs = {self.root.ob}
@@ -252,7 +252,7 @@ class Perspective:
 
     def add(self, ob, parent):
         pnode = self.nodes[parent]
-        node = Node(ob, pnode)
+        node = Node(ob, pnode, self)
         pnode.children.append(node)
         self.nodes[ob] = node
         return node
@@ -301,10 +301,11 @@ class Perspective:
 
 
 class Node:
-    def __init__(self, ob, parent):
+    def __init__(self, ob, parent, perspective):
         self.ob = ob
         self.parent = parent
         self.children = []
+        self.perspective = perspective
 
 
 class Narrator:
@@ -332,10 +333,6 @@ class Narrator:
                 return 'a'
 
     def nounphrase(self, ob):
-        sce = bge.logic.getCurrentScene()
-        if ob is sce.active_camera:
-            return 'you'
-
         return '{a} {ob}'.format(a=self.article(ob), ob=ob.name)
 
     def preposition(self, ob, ref):
@@ -347,7 +344,7 @@ class Narrator:
 
         # Now look at the surface of the target object.
         co, dist = closest_point(ref, ob)
-        print(ref, ob, co, dist)
+        #print(ref, ob, co, dist)
         vec = ob.worldPosition - co
         #dist = vec.magnitude - p(ref, 'size', 1.0)
 
@@ -355,7 +352,7 @@ class Narrator:
         # TODO: this stuff should be incorporated into the perspective tree
         # builder to generate better trees.
         dot = vec.normalized().dot((0,0,1))
-        print(ob, ref, dot, vec)
+        #print(ob, ref, dot, vec)
         if abs(dot) > 0.9:
             if vec.z > 2.0:
                 return "over"
@@ -377,9 +374,8 @@ class Narrator:
             100)
 
         if ground is not None:
-            yield sentence('{sub} are standing on {a} {ob}.'.format(
-                sub=self.nounphrase(actor), a=self.article(ground),
-                ob=ground.name))
+            yield sentence('you are standing on {a} {ob}.'.format(
+                a=self.article(ground), ob=ground.name))
             self.recent_obs[ground.name] = ground
 
         for node in tree.walk():
@@ -397,10 +393,19 @@ class Narrator:
         return text
 
     def describe_node_loc(self, node):
+        you = node.perspective.root.ob
         ob = node.ob
         ref = node.parent.ob
-        text = sentence('{s} is {prep} {ob}.'.format(
-            s=self.nounphrase(ob), prep=self.preposition(ob, ref),
+
+        if ob is you:
+            template = 'you are {prep} {ob}.'
+        elif ref is you:
+            template = '{s} is {prep} you.'
+        else:
+            template = '{s} is {prep} {ob}.'
+        text = sentence(template.format(
+            s=self.nounphrase(ob),
+            prep=self.preposition(ob, ref),
             ob=self.nounphrase(ref)))
         self.mention(ob)
         self.mention(ref)
