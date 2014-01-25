@@ -3,7 +3,7 @@ import bge
 def _strip(text_split):
     return [
         w for w in text_split
-        if w not in {"in", "at", "an", "the"}]
+        if w not in {"in", "at", "an", "the", "is"}]
 
 
 def parse_node(p, text):
