@@ -280,12 +280,16 @@ class Narrator:
     def describe_node(self, node):
         ob = node.ob
         ref = node.parent.ob
-        sen = sentence('{s} is {prep} {ob}.'.format(
+        text = sentence('{s} is {prep} {ob}.'.format(
             s=self.nounphrase(ob), prep=self.preposition(ob, ref),
             ob=self.nounphrase(ref)))
         self.mention(ob)
         self.mention(ref)
-        return sen
+        if 'description' in ob:
+            text += ' ' + ob['description']
+        if not text.endswith('.'):
+            text += '.'
+        return text
 
 
 def test(c):
