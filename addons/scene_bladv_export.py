@@ -76,9 +76,66 @@ class AdvGamePanel(bpy.types.Panel):
         col = layout.column(align=True)
         col.prop(adv, "use_collect")
 
+        layout.operator("advgame.convert")
+
+
+class AdvGameConvert(bpy.types.Operator):
+    bl_label = "Setup"
+    bl_idname = "advgame.convert"
+
+    @staticmethod
+    def obj_to_game_props(obj):
+        game_props = obj.game.properties
+
+        for prop_identifier, prop in bpy.types.AdvGameObject.bl_rna.properties.items():
+            print(prop_identifier)
+            if prop_identifier == "rna_type":
+                continue
+
+            gprop = game_props.get(prop_identifier)
+            if gprop:
+                bpy.ops.object.game_property_remove({"active_object": obj}, index=game_props.find(gprop.name))
+                gprop = None
+
+            if gprop is None:
+                bpy.ops.object.game_property_new({"active_object": obj}, name=prop_identifier)
+                gprop = game_props[-1]
+
+            prop_type = prop.type
+            # print(prop.type)
+            value = getattr(obj.adv, prop_identifier)
+            if prop_type == 'STRING':
+                gprop.type = 'STRING'
+                gprop = gprop.type_recast()
+                gprop.value = value
+            elif prop_type == 'ENUM':
+                gprop.type = 'STRING'
+                gprop = gprop.type_recast()
+                gprop.value = value
+            elif prop_type == 'FLOAT':
+                gprop.type = 'FLOAT'
+                gprop = gprop.type_recast()
+                gprop.value = value
+            elif prop_type == 'INT':
+                gprop.type = 'INT'
+                gprop = gprop.type_recast()
+                gprop.value = value
+            elif prop_type == 'BOOLEAN':
+                gprop.type = 'BOOL'
+                gprop = gprop.type_recast()
+                gprop.value = value
+
+    def execute(self, context):
+        scene = context.scene
+        for obj in scene.objects:
+            self.obj_to_game_props(obj)
+        return {'FINISHED'}
+
+
 classes = (
     AdvGameObject,
     AdvGamePanel,
+    AdvGameConvert,
     )
 
 def register():
