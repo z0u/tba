@@ -330,6 +330,23 @@ class MultiDict:
         return self.store.values()
 
 
+def collect_multi_game_string(ob, name, default=None):
+    segs = []
+    try:
+        segs.append(str(ob[name]))
+    except KeyError:
+        return default
+
+    i = 0
+    while True:
+        try:
+            segs.append(ob[name + str(i)])
+        except KeyError:
+            break
+        i += 1
+    return "".join(segs)
+
+
 class Narrator:
     '''
     Generates a textual description of the scene. This object maintains a
@@ -419,10 +436,12 @@ class Narrator:
     def get_flavour_text(self, perspective):
         sce = bge.logic.getCurrentScene()
         view = nearest_view(perspective.root.ob, sce.objects)
-        if 'description' not in view or view['description'] == "":
+
+        fulldesc = collect_multi_game_string(view, 'description', "")
+        if fulldesc == "":
             return None
 
-        splitdesc = re.split(r'\[([a-zA-Z]+)\]', view['description'])
+        splitdesc = re.split(r'\[([a-zA-Z]+)\]', fulldesc)
         actor_name = perspective.root.ob.name.lower()
         for name, desc in zip(splitdesc[1::2], splitdesc[2::2]):
             if name.lower() == actor_name:
@@ -494,8 +513,9 @@ class Narrator:
 
     def describe_node(self, node):
         ob = node.ob
-        if 'description' in ob:
-            text = ob['description']
+        fulldesc = collect_multi_game_string(view, 'description', "")
+        if fulldesc != "":
+            text = fulldesc
         else:
             text = "It's just {ob}.".format(ob=self.nounphrase(ob, node.perspective))
         self.mention(ob)
