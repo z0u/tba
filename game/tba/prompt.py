@@ -18,8 +18,7 @@ globals = {
 
 FONTS = {
     "stone": "//fonts/Caesar_Dressing/CaesarDressing-Regular.ttf",
-    "heavywood": "//fonts/Freckle_Face/FreckleFace-Regular.ttf",
-    "lightwood": "//fonts/Rum_Raisin/RumRaisin-Regular.ttf",
+    "wood": "//fonts/Freckle_Face/FreckleFace-Regular.ttf",
     "water": "//fonts/Indie_Flower/IndieFlower.ttf",
     "spirit": "//fonts/Mystery_Quest/MysteryQuest-Regular.ttf",
     "metal": "//fonts/Russo_One/RussoOne-Regular.ttf",
@@ -118,7 +117,7 @@ def draw_text_calc():
     own = globals["own"]
     text = own["Text"]
 
-    return globals["SCROLLBACK"] + "\n> " + text
+    return globals["SCROLLBACK"] + "\n» " + text
 
 
 # ------------------------------------------------------------------------------
@@ -145,7 +144,10 @@ def exec_init(cont):
     from .parse import parse_command
     n = globals["NARRATOR"]
     p = globals["PERSPECTIVE"]
-    globals["SCROLLBACK"] += "\n" + parse_command(n, p, "embody statue")
+
+    # Embody - but this first time, don't print output.
+    parse_command(n, p, "embody statue")
+    globals["SCROLLBACK"] = "You have an uneasy feeling."
 
 
 def exec(cont):
@@ -179,7 +181,7 @@ def exec(cont):
     from .parse import parse_command
 
     text_ls = []
-    text_ls.append("> " + text_command)
+    text_ls.append("» " + text_command)
     output = parse_command(n, p, text_command)
     if output != "":
         text_ls.append(output)
