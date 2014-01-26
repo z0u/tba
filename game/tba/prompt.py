@@ -11,6 +11,7 @@ globals = {
     "FONT": "spirit",
     "PERSPECTIVE": None,
     "NARRATOR": None,
+    "ENDGAME": False,
     }
 
 # ------------------------------------------------------------------------------
@@ -102,6 +103,12 @@ def draw_cb():
 
     draw_text(text)
 
+    # XXX HACK
+    if globals["ENDGAME"]:
+        globals["ENDGAME"] += 1
+        if globals["ENDGAME"] > 400:
+            bge.logic.endGame()
+
 
 def draw_init(cont):
     """Only run once to setup callback"""
@@ -190,7 +197,8 @@ def exec(cont):
         text_ls.append(output)
 
     p = globals["PERSPECTIVE"]
-    text_ls.append(" ".join(n.describe_scene(p)))
+    if not globals["ENDGAME"]:
+        text_ls.append(" ".join(n.describe_scene(p)))
 
     p.prettyprint()
 
