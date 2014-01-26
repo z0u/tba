@@ -65,7 +65,7 @@ def embody_node(n, p, node):
 
     #p.root = node
     #p.__init__(p.root.ob)
-    embody_descr = node.ob.get("embody_descr", "")
+    embody_descr = tba.render.collect_multi_game_string(node.ob, 'embody_descr', "")
     if embody_descr:
         return embody_descr
     else:
