@@ -1,9 +1,12 @@
 # Living Forest
 
-This is a 3D text-based adventure game.
+This is a 3D text-based adventure game. You play Muana Loka, a god whose domain
+is threatened by human development.
 
-A what? This game plays like a tranditional interactive fiction game, however
-the world is actually a 3D scene. The engine render the objects not as picutres,
+> 3D text?
+
+No! This game plays like a tranditional interactive fiction game, however
+the world is actually a 3D scene. The engine render the objects not as pictures,
 but as text.
 
 ## Playing the Game
