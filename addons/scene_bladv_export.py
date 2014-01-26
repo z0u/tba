@@ -36,6 +36,11 @@ class AdvGameObject(bpy.types.PropertyGroup):
             min=0.0, max=1.0,
             )
 
+    use_alive = BoolProperty(
+            name="Living",
+            description="Is object living",
+            default=True,
+            )
     use_move = BoolProperty(
             name="Move",
             description="This object can be moved",
@@ -102,6 +107,7 @@ class AdvGamePanel(bpy.types.Panel):
         layout.label("Interact:")
         col = layout.column(align=True)
         # col.prop(adv, "use_collect")
+        col.prop(adv, "use_alive")
         col.prop(adv, "use_move")
 
         layout.operator("advgame.convert")

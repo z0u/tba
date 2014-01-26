@@ -118,6 +118,9 @@ def embody_node(n, p, node):
     import tba
     import bge
 
+    if not p.root.ob.get("use_alive", False):
+        return "You can't move {name}".format(name=p.root.ob.name)
+
     if (node.ob.worldPosition - p.root.ob.worldPosition).length > tba.render.GLOBAL_FAR:
         return "{name} is too far off to embody".format(name=node.ob.name.title())
 
