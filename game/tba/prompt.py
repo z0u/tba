@@ -115,6 +115,11 @@ def exec_init(cont):
     globals["NARRATOR"] = tba.render.Narrator()
     globals["PERSPECTIVE"] = tba.render.Perspective(sce.active_camera)
 
+    # autoexec
+    from .parse import parse_command
+    n = globals["NARRATOR"]
+    p = globals["PERSPECTIVE"]
+    globals["SCROLLBACK"] += "\n" + parse_command(n, p, "embody statue")
 
 
 def exec(cont):

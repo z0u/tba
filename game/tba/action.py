@@ -76,18 +76,29 @@ def whereis_node(n, p, node):
 
 def eat_node(n, p, node):
     import bge
+    import tba
 
     # Eating can move the object!
     prefix = node.ob.name.split(".")[0]
 
-    search = "_{prefix}.eat".format(prefix=prefix)
+    # BEVER -> EATS -> TREE
+    if "tree" in prefix.lower():
+        print("WTF?",  p.root.ob.name)
+        if "beaver" not in p.root.ob.name.lower():
+            return "You nibble the tree but obviously you dont have big enough teeth"
 
-    sce = bge.logic.getCurrentScene()
-    # TODO (multiple?)
-    ob = sce.objects.get(search)
-    if ob:
-        node.ob.wordPosition = ob.wordPosition
-        return "You have eaten the {name}".format(name=node.ob.name)
-    else:
-        return "You cant eat {name}".format(name=node.ob.name)
 
+        search = "_{prefix}.eat".format(prefix=prefix)
+
+        sce = bge.logic.getCurrentScene()
+        # TODO (multiple?)
+        ob = sce.objects.get(search)
+        if ob:
+            node.ob.worldPosition = ob.worldPosition
+
+            ok = tba.waypoints.conntect_by_position(ob.worldPosition)
+            assert(ok)
+
+            return "You have eaten the {name} falls across the river".format(name=node.ob.name)
+
+    return "You cant eat {name} {A}".format(name=node.ob.name, A=search)
