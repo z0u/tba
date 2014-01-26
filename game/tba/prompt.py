@@ -1,7 +1,7 @@
 import bge
 import blf
 
-FONT_SIZE = 40
+FONT_SIZE = 36
 REFERENCE_WINDOW_HEIGHT = 800
 SMART_WRAP = True
 MARGIN = 0.1
