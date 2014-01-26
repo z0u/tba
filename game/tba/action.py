@@ -107,4 +107,36 @@ def eat_node(n, p, node):
 
             return "You have eaten the {name} falls across the river".format(name=node.ob.name)
 
-    return "You cant eat {name} {A}".format(name=node.ob.name, A=search)
+    return "You cant eat {name}".format(name=n.nounphrase(node.ob))
+
+
+def _inventory(ob):
+    return [o for o in ob.children if not o.name.startswith("_")]
+
+def take_node(n, p, node):
+    import bge
+    import tba
+
+    obs = _inventory(node.ob)
+
+    if obs:
+        return "You're holding {name}".format(name=n.nounphrase(obs[0]))
+    else:
+        sce = bge.logic.getCurrentScene()
+        new_view = tba.render.nearest_view(node.ob, sce.objects)
+        if sce.active_camera != new_view:
+            return "You're too faw away from {name}".format(name=n.nounphrase(node.ob))
+
+        if p.root.ob == node.ob:
+            return "Can't take yourself"
+
+        if not node.ob.get("use_collect", False):
+            return "You can't take {name}".format(name=n.nounphrase(node.ob))
+
+        p.root.ob.setParent(node.ob)
+        node.ob.worldPosition = p.root.ob.worldPosition
+
+        return "You take {name}".format(name=n.nounphrase(node.ob))
+
+def drop_any(n, p):
+    pass

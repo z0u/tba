@@ -50,8 +50,11 @@ def parse_command(n, p, text):
         return _parse_command__verb_object(n, p, text, action.embody_node)
     if text_split[0] in {"t", "eat", "chew", "gobble"}:
         return _parse_command__verb_object(n, p, text, action.eat_node)
+    if text_split[0] in {"take", "get", "grab"}:
+        return _parse_command__verb_object(n, p, text, action.take_node)
     if text_split[0] in {"g", "move", "go", "mv"}:
         return _parse_command__verb_object(n, p, text, action.move_to)
+
     if text_split[0] in {"q", "quit", "exit"}:
         bge.logic.endGame()
         return ""
