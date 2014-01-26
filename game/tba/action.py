@@ -88,6 +88,9 @@ def move_to(n, p, node):
     import tba
     import bge
 
+    if not p.root.ob.get("use_move", False):
+        return "You can't move {name}".format(name=p.root.ob.name)
+
     sce = bge.logic.getCurrentScene()
     new_view = tba.render.nearest_view(node.ob, sce.objects)
 

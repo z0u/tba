@@ -36,6 +36,11 @@ class AdvGameObject(bpy.types.PropertyGroup):
             min=0.0, max=1.0,
             )
 
+    use_move = BoolProperty(
+            name="Move",
+            description="This object can be moved",
+            default=True,
+            )
     use_collect = BoolProperty(
             name="Collect",
             description="Can pickup this object",
@@ -96,7 +101,8 @@ class AdvGamePanel(bpy.types.Panel):
 
         layout.label("Interact:")
         col = layout.column(align=True)
-        col.prop(adv, "use_collect")
+        # col.prop(adv, "use_collect")
+        col.prop(adv, "use_move")
 
         layout.operator("advgame.convert")
 
