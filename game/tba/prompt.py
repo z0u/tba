@@ -207,7 +207,11 @@ def exec(cont):
 
     globals["SCROLLBACK"] += "\n".join(text_ls)
 
-    #print(text)
+
+def debug_filter(cont):
+    """ Only for testing (F10) """
+    sce = bge.logic.getCurrentScene()
+    sce.objects["_VisualFilter"].color = 0.0, 0.0, 0.0, 0.75
 
 
 def update_filter(c):
