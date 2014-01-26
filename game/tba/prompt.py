@@ -159,6 +159,8 @@ def exec(cont):
     own = globals["own"]
     text_command = own["Text"]
     own["Text"] = ""
+    if text_command.endswith('\n'):
+        text_command = text_command[:-1]
     if not text_command:
         return
     # TODO
@@ -178,7 +180,9 @@ def exec(cont):
 
     text_ls = []
     text_ls.append("> " + text_command)
-    text_ls.append(parse_command(n, p, text_command))
+    output = parse_command(n, p, text_command)
+    if output != "":
+        text_ls.append(output)
 
     p = globals["PERSPECTIVE"]
     text_ls.append(" ".join(n.describe_scene(p)))
