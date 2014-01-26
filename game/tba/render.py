@@ -1,6 +1,8 @@
 import bge
 import mathutils
+
 import difflib
+import re
 
 # distance which is considered far
 GLOBAL_FAR = 100.0
@@ -414,11 +416,24 @@ class Narrator:
         else:
             return "far away from"
 
-    def describe_scene(self, tree):
+    def get_flavour_text(self, perspective):
         sce = bge.logic.getCurrentScene()
-        view = nearest_view(tree.root.ob, sce.objects)
-        if 'description' in view and view['description'] != "":
-            yield view['description'] + '\n'
+        view = nearest_view(perspective.root.ob, sce.objects)
+        if 'description' not in view or view['description'] == "":
+            return None
+
+        splitdesc = re.split(r'\[([a-zA-Z]+)\]', view['description'])
+        actor_name = perspective.root.ob.name.lower()
+        for name, desc in zip(splitdesc[1::2], splitdesc[2::2]):
+            if name.lower() == actor_name:
+                return desc
+
+        return splitdesc[0]
+
+    def describe_scene(self, tree):
+        flavour = self.get_flavour_text(tree)
+        if flavour is not None:
+            yield flavour + '\n'
 
         actor = tree.root.ob
         ground, _, _ = actor.rayCast(
