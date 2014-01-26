@@ -84,7 +84,11 @@ class AdvGamePanel(bpy.types.Panel):
             return
 
         if obj.type == 'CAMERA':
+            adv = obj.adv
             layout.label("Camera object")
+            col = layout.column(align=True)
+            col.prop(adv, "description", text="")
+            layout.operator("advgame.convert")
             return
 
         if obj.dupli_group:
@@ -177,7 +181,7 @@ class AdvGameConvert(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         for obj in scene.objects:
-            if obj.dupli_group is None and obj.type != 'CAMERA':
+            if obj.dupli_group is None:
                 self.obj_to_game_props(obj)
         return {'FINISHED'}
 

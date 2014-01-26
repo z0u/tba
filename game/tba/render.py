@@ -415,6 +415,11 @@ class Narrator:
             return "far away from"
 
     def describe_scene(self, tree):
+        sce = bge.logic.getCurrentScene()
+        view = nearest_view(tree.root.ob, sce.objects)
+        if 'description' in view and view['description'] != "":
+            yield view['description'] + '\n'
+
         actor = tree.root.ob
         ground, _, _ = actor.rayCast(
             actor.worldPosition - mathutils.Vector((0, 0, 100)),

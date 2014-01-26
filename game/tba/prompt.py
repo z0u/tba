@@ -5,6 +5,8 @@ FONT_SIZE = 40
 REFERENCE_WINDOW_HEIGHT = 800
 SMART_WRAP = True
 MARGIN = 0.1
+LINE_SPACING = 1.2
+PARAGRAPH_SPACING = 1.5
 
 globals = {
     "SCROLLBACK": "",
@@ -92,9 +94,9 @@ def draw_text(text):
                 blf.position(font_id, x, y, 0.0)
                 blf.draw(font_id, text_test)
                 text_split.clear()
-                y -= font_size * 1.5
+                y -= font_size * LINE_SPACING
             # \n
-            y -= font_size * 2
+            y -= font_size * PARAGRAPH_SPACING
 
 
 def draw_cb():
