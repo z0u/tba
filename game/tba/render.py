@@ -340,7 +340,7 @@ def collect_multi_game_string(ob, name, default=None):
     i = 0
     while True:
         try:
-            segs.append(ob[name + str(i)])
+            segs.append(ob[name + '.' + str(i)])
         except KeyError:
             break
         i += 1
