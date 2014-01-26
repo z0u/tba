@@ -34,18 +34,27 @@ def parse_command(n, p, text):
     text_split = text.lower().split()
 
     # basic action/objects
-    if text_split[0] in {"l", "look", "inspect", "check", "investigate", "who"}:
-        return _parse_command__verb_object(n, p, text, action.inspect_node)
+    if text_split[0] in {"l", "x", "ls", "look", "inspect", "check", "investigate", "who"}:
+        if len(text_split) > 1:
+            return _parse_command__verb_object(n, p, text, action.inspect_node)
+        else:
+            #action.describe()
+            # Can just return, because UI always renders location description.
+            return ""
     if text_split[0] in {"w", "where", "locate"}:
-        return _parse_command__verb_object(n, p, text, action.whereis_node)
+        if len(text_split) > 1:
+            return _parse_command__verb_object(n, p, text, action.whereis_node)
+        else:
+            action.whereis_node(n, p, p.root)
     if text_split[0] in {"e", "embody", "become", "cd"}:
         return _parse_command__verb_object(n, p, text, action.embody_node)
     if text_split[0] in {"t", "eat", "chew", "gobble"}:
         return _parse_command__verb_object(n, p, text, action.eat_node)
     if text_split[0] in {"g", "move", "go", "mv"}:
         return _parse_command__verb_object(n, p, text, action.move_to)
-    if text_split[0] in {"quit", "exit"}:
+    if text_split[0] in {"q", "quit", "exit"}:
         bge.logic.endGame()
+        return ""
 
     return "Not sure what you mean"
 
