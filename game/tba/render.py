@@ -10,14 +10,6 @@ def sentence(text):
     return text[0].upper() + text[1:]
 
 
-def p(ob, prop, default=None):
-    '''Fetches a game object property; can return default value'''
-    try:
-        return ob[prop]
-    except KeyError:
-        return default
-
-
 def has_mesh(ob):
     return len(ob.meshes) > 0
 
@@ -78,7 +70,7 @@ def closest_point(ob, ref):
     pos_from = ref.worldPosition
     if not has_mesh(ob):
         vec = pos_from - ob.worldPosition
-        vec.magnitude = p(ob, 'size', 1.0)
+        vec.magnitude = ob.get('size', 1.0)
         co = ob.worldPosition + vec
         return co, (co - pos_from).magnitude
 
@@ -135,13 +127,13 @@ class importance_key:
 
         # Adjust distance to account for object size (so touching objects have
         # distance of 0).
-        dist -= p(self.ref, 'size', 1.0)# + p(ob, 'size', 1.0)
+        dist -= self.ref.get('size', 1.0)# + ob.get('size', 1.0)
         dist = max(0, dist)
         # Avoid div0
         dist += 1
 
-        #importance = p(ob, 'size', 1.0) * p(ob, 'rel_size', 1.0)
-        importance = p(ob, 'rel_size', 1.0)
+        #importance = ob.get('size', 1.0) * ob.get('rel_size', 1.0)
+        importance = ob.get('rel_size', 1.0)
 
 #        print(ob, dist, importance)
         return importance / (dist * dist)
@@ -197,7 +189,7 @@ def visibility(ob, ref, limit=0.01):
         if hitob is None:
             # In this case, we've reached the centre of a meshless object.
             return vis
-        vis *= 1.0 - p(hitob, 'opacity', 1.0)
+        vis *= 1.0 - hitob.get('opacity', 1.0)
         if vis < limit:
             break
     return vis
@@ -377,7 +369,7 @@ class Narrator:
     def preposition(self, ob, ref):
         ## First, special case for objects that are inside!
         #vec = ob.worldPosition - ref.worldPosition
-        #dist = vec.magnitude - p(ref, 'size', 1.0)
+        #dist = vec.magnitude - ref.get('size', 1.0)
         #if dist < 0:
         #    return "in"
 
@@ -385,7 +377,7 @@ class Narrator:
         co, dist = closest_point(ref, ob)
         #print(ref, ob, co, dist)
         vec = ob.worldPosition - co
-        #dist = vec.magnitude - p(ref, 'size', 1.0)
+        #dist = vec.magnitude - ref.get('size', 1.0)
 
         # For over/under, check dot product first.
         # TODO: this stuff should be incorporated into the perspective tree
