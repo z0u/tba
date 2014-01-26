@@ -48,7 +48,7 @@ def embody_node(n, p, node):
         n.mention(p.root.ob)
         return text
 
-    if (node.ob.worldPosition - p.root.ob.worldPosition).length > tba.render.GLOBAL_FAR:
+    if (node.ob.worldPosition - p.root.ob.worldPosition).length > 40:
         return "{name} is too far off to embody".format(name=node.ob.name.title())
 
     sce = bge.logic.getCurrentScene()
