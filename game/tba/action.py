@@ -47,18 +47,18 @@ def _is_validpath(ob_a, ob_b):
 
     verts_new, verts_link = tba.prompt.globals["WAYPOINTS"]
 
-    def close_point(pt, limit=5.0):
+    def close_point(pt, limit=2.0, id_str="<UNKNOWN>"):
         cos = [(i, co) for i, co in enumerate(verts_new)]
         cos.sort(key=lambda v: (v[1] - pt).xy.length)
         length = (cos[0][1] - pt).xy.length
-        print("LENGTH:", length)
         if length < limit:
+            print("length %s < limit=%r:" % (id_str, limit), length)
             return cos[0][0]
         else:
             return -1
 
-    i_a = close_point(ob_a.worldPosition.copy())
-    i_b = close_point(ob_b.worldPosition.copy())
+    i_a = close_point(ob_a.worldPosition.copy(), id_str=ob_a.name)
+    i_b = close_point(ob_b.worldPosition.copy(), id_str=ob_b.name)
 
     if -1 in (i_a, i_b):
         print("NOT ON PATH")
@@ -95,8 +95,12 @@ def move_to(n, p, node):
     sce = bge.logic.getCurrentScene()
     new_view = tba.render.nearest_view(node.ob, sce.objects)
 
-    if not new_view or not _is_validpath(sce.active_camera, new_view):
+    #~ if not new_view or not _is_validpath(sce.active_camera, new_view):
+    #~     return "there is no way to get to the {name}".format(name=node.ob.name)
+
+    if not new_view or not _is_validpath(p.root.ob, node.ob):
         return "There is no way to get to the {name}".format(name=node.ob.name)
+
 
     p.root.ob.worldPosition = new_view.worldPosition
 
