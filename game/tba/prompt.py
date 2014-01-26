@@ -150,7 +150,7 @@ def exec_init(cont):
 
     # Embody - but this first time, don't print output.
     parse_command(n, p, "embody statue")
-    globals["SCROLLBACK"] = "You have an uneasy feeling."
+    globals["SCROLLBACK"] = "Muana Loka is displeased. The creatures with orange pelts came and left a meagre offering. This will not suffice. The very land itself shall embody your wrath."
 
 
 def exec(cont):
