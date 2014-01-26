@@ -114,7 +114,7 @@ def eat_node(n, p, node):
 
             return "You have eaten the {name} falls across the river".format(name=node.ob.name)
 
-    return "You cant eat {name}".format(name=n.nounphrase(node.ob, p))
+    return "You can't eat {name}".format(name=n.nounphrase(node.ob, p))
 
 
 def _inventory(ob):
@@ -127,11 +127,7 @@ def take_node(n, p, node):
     obs = _inventory(p.root.ob)
 
     if obs:
-<<<<<<< HEAD
-        return "You're holding {name}".format(name=n.nounphrase(obs[0], p))
-=======
-        return "You're already holding {name}".format(name=n.nounphrase(obs[0]))
->>>>>>> more inventory work
+        return "You're already holding {name}".format(name=n.nounphrase(obs[0], p))
     else:
         sce = bge.logic.getCurrentScene()
         new_view = tba.render.nearest_view(node.ob, sce.objects)
@@ -168,6 +164,6 @@ def drop_any(n, p):
         co.z += 0.2
         ob_take.worldPosition = co
 
-        return "You drop {name}".format(name=n.nounphrase(ob_take))
+        return "You drop {name}".format(name=n.nounphrase(ob_take, p))
 
 
