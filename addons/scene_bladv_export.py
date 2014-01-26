@@ -56,6 +56,15 @@ class AdvGameObject(bpy.types.PropertyGroup):
                    ('LIQUID', "Liquid", ""),
                    ('GAS', "Gas", "")),
             )
+    element = EnumProperty(
+            name="Element",
+            description="Element this this object feels an affinity for",
+            items=(('spirit', "Spirit", ""),
+                   ('stone', "Stone", ""),
+                   ('wood', "Wood", ""),
+                   ('water', "Water", ""),
+                   ('metal', "Metal", "")),
+            )
 
 
 class AdvGamePanel(bpy.types.Panel):
@@ -101,12 +110,14 @@ class AdvGamePanel(bpy.types.Panel):
         col = layout.column(align=True)
         row = col.row(align=True)
         row.prop(adv, "solid_state", expand=True)
+        row = col.row(align=True)
+        row.prop(adv, "element", expand=True)
         col.prop(adv, "rel_scale")
         col.prop(adv, "opacity")
 
         layout.label("Interact:")
         col = layout.column(align=True)
-        # col.prop(adv, "use_collect")
+        col.prop(adv, "use_collect")
         col.prop(adv, "use_alive")
         col.prop(adv, "use_move")
 
