@@ -9,16 +9,12 @@ def _parse_nodegraph(ob):
     vdict = {}
     verts_new = []
     nvert = me.getVertexArrayLength(0)
-    verts_orig = [None] * nvert
     verts_map = [-1] * nvert
     for i in range(nvert):
         v_vec = me.getVertex(0, i).XYZ
         v = v_vec.to_tuple(3)
-        verts_orig[i] = v
         iv = vdict.get(v)
-        if iv is not None:
-            verts_map[i] = iv
-        else:
+        if iv is None:
             iv = len(vdict)
             vdict[v] = iv
             verts_new.append(v_vec.copy())
