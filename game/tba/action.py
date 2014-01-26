@@ -8,7 +8,9 @@ def move_to(n, p, node):
     import bge
 
     if not p.root.ob.get("use_move", False):
-        return "You can't move {name}".format(name=p.root.ob.name)
+        text = "{sub} is immobile.".format(sub=n.nounphrase(p.root.ob))
+        n.mention(p.root.ob)
+        return text
 
     sce = bge.logic.getCurrentScene()
     new_view = tba.render.nearest_view(node.ob, sce.objects)
@@ -17,7 +19,9 @@ def move_to(n, p, node):
     #~     return "there is no way to get to the {name}".format(name=node.ob.name)
 
     if not new_view or not tba.waypoints.is_validpath(p.root.ob, node.ob):
-        return "There is no way to get to the {name}".format(name=node.ob.name)
+        text = "There is no way to get to the {name}".format(name=node.ob.name)
+        n.mention(p.root.ob)
+        return text
 
 
     p.root.ob.worldPosition = new_view.worldPosition
@@ -38,7 +42,9 @@ def embody_node(n, p, node):
     import bge
 
     if not node.ob.get("use_alive", False):
-        return "You can't embody {name}".format(name=node.ob.name)
+        text = "{sub} has no spirit to embody.".format(sub=n.nounphrase(node.ob))
+        n.mention(p.root.ob)
+        return text
 
     if (node.ob.worldPosition - p.root.ob.worldPosition).length > tba.render.GLOBAL_FAR:
         return "{name} is too far off to embody".format(name=node.ob.name.title())
