@@ -2,6 +2,7 @@ import bge
 import blf
 
 FONT_SIZE = 40
+REFERENCE_WINDOW_HEIGHT = 800
 SMART_WRAP = True
 MARGIN = 0.1
 
@@ -67,7 +68,9 @@ def draw_text(text):
     # BLF drawing routine
     dim = min(width, height)
     x, y = (dim * MARGIN), (dim * (1.0 - MARGIN))
-    blf.size(font_id, FONT_SIZE, 72)
+    relative_size = bge.render.getWindowHeight() / REFERENCE_WINDOW_HEIGHT
+    font_size = int(FONT_SIZE * relative_size)
+    blf.size(font_id, font_size, 72)
 
     if not SMART_WRAP:
         blf.position(font_id, x, y, 0.0)
@@ -88,9 +91,9 @@ def draw_text(text):
                 blf.position(font_id, x, y, 0.0)
                 blf.draw(font_id, text_test)
                 text_split.clear()
-                y -= FONT_SIZE * 1.5
+                y -= font_size * 1.5
             # \n
-            y -= FONT_SIZE * 2
+            y -= font_size * 2
 
 
 def draw_cb():
