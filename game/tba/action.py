@@ -168,9 +168,9 @@ def drop_any(n, p):
         if 1:
             sce = bge.logic.getCurrentScene()
             target = sce.objects["bulldozer"]
-            print("DISTID", (p.root.ob.worldPosition - target.worldPosition).length)
             if (p.root.ob.worldPosition - target.worldPosition).length < 4.0:
                 tba.prompt.globals["ENDGAME"] = True
+                sce.objects["_KeyInput"]["is_input"] = False
                 return ("You drop the dynamite and quickly flee the scene. "
                         "After a minute, the air fills with a volcanic roar. "
                         "Pieces of the bulldozer rain from the sky like metal hail. You have won!")
