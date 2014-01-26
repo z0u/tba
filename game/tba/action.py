@@ -164,6 +164,16 @@ def drop_any(n, p):
         co.z += 0.2
         ob_take.worldPosition = co
 
+        # XXX HACK
+        if 1:
+            sce = bge.logic.getCurrentScene()
+            target = sce.objects["bulldozer"]
+            print("DISTID", (p.root.ob.worldPosition - target.worldPosition).length)
+            if (p.root.ob.worldPosition - target.worldPosition).length < 4.0:
+                return ("You drop the dynamite and quickly flee the scene. "
+                        "After a minute, the air fills with a volcanic roar. "
+                        "Pieces of the bulldozer rain from the sky like metal hail. You have won!")
+
         return "You drop {name}".format(name=n.nounphrase(ob_take, p))
 
 
