@@ -160,7 +160,24 @@ class AdvGameConvert(bpy.types.Operator):
             if prop_type == 'STRING':
                 gprop.type = 'STRING'
                 gprop = gprop.type_recast()
-                gprop.value = value
+
+                if len(value) < 127:
+                    gprop.value = value
+                else:
+                    value_rem = value
+                    n = -1
+                    while value_rem:
+                        value = value_rem[0:127]
+                        value_rem = value_rem[127:]
+                        if n != -1:
+                            bpy.ops.object.game_property_new({"active_object": obj}, name=prop_identifier + "." + str(n))
+                            gprop = game_props[-1]
+                            gprop.type = 'STRING'
+                            gprop = gprop.type_recast()
+
+                        gprop.value = value
+                        n += 1
+
             elif prop_type == 'ENUM':
                 gprop.type = 'STRING'
                 gprop = gprop.type_recast()
@@ -177,6 +194,7 @@ class AdvGameConvert(bpy.types.Operator):
                 gprop.type = 'BOOL'
                 gprop = gprop.type_recast()
                 gprop.value = value
+
 
     def execute(self, context):
         scene = context.scene
