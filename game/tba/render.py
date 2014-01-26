@@ -513,7 +513,7 @@ class Narrator:
 
     def describe_node(self, node):
         ob = node.ob
-        fulldesc = collect_multi_game_string(view, 'description', "")
+        fulldesc = collect_multi_game_string(ob, 'description', "")
         if fulldesc != "":
             text = fulldesc
         else:
