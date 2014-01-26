@@ -40,6 +40,8 @@ def parse_command(n, p, text):
         return _parse_command__verb_object(n, p, text, action.whereis_node)
     if text_split[0] in {"e", "embody", "become", "cd"}:
         return _parse_command__verb_object(n, p, text, action.embody_node)
+    if text_split[0] in {"t", "eat", "chew", "gobble"}:
+        return _parse_command__verb_object(n, p, text, action.eat_node)
     if text_split[0] in {"g", "move", "go", "mv"}:
         return _parse_command__verb_object(n, p, text, action.move_to)
     if text_split[0] in {"quit", "exit"}:

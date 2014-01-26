@@ -102,12 +102,13 @@ def draw_text_calc():
 def exec_init(cont):
     import tba
     import tba.action
+    import tba.waypoints
     sce = bge.logic.getCurrentScene()
 
 
     # this could be moved  to action.py
     ob = sce.objects["_WAYPOINTS"]
-    globals["WAYPOINTS"] = tba.action._parse_nodegraph(ob)
+    globals["WAYPOINTS"] = tba.waypoints.parse_nodegraph(ob)
     ob.endObject()
 
 
