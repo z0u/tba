@@ -29,7 +29,9 @@ def move_to(n, p, node):
     if new_view:
         sce.active_camera = new_view
 
-    tba.prompt.globals["PERSPECTIVE"] = tba.render.Perspective(node.ob)
+    # Re-create perspective using the same object - since the object has now
+    # been moved, the resulting tree will be different.
+    tba.prompt.globals["PERSPECTIVE"] = tba.render.Perspective(p.root.ob)
 
     return "You have moved to the {name}".format(name=node.ob.name)
 
