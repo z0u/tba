@@ -97,7 +97,6 @@ def eat_node(n, p, node):
 
     # BEVER -> EATS -> TREE
     if "tree" in prefix.lower():
-        print("WTF?",  p.root.ob.name)
         if "beaver" not in p.root.ob.name.lower():
             return "You nibble the tree but obviously you dont have big enough teeth"
 
@@ -125,10 +124,14 @@ def take_node(n, p, node):
     import bge
     import tba
 
-    obs = _inventory(node.ob)
+    obs = _inventory(p.root.ob)
 
     if obs:
+<<<<<<< HEAD
         return "You're holding {name}".format(name=n.nounphrase(obs[0], p))
+=======
+        return "You're already holding {name}".format(name=n.nounphrase(obs[0]))
+>>>>>>> more inventory work
     else:
         sce = bge.logic.getCurrentScene()
         new_view = tba.render.nearest_view(node.ob, sce.objects)
@@ -141,10 +144,30 @@ def take_node(n, p, node):
         if not node.ob.get("use_collect", False):
             return "You can't take {name}".format(name=n.nounphrase(node.ob, p))
 
-        p.root.ob.setParent(node.ob)
-        node.ob.worldPosition = p.root.ob.worldPosition
+        node.ob.setParent(p.root.ob)
+        co = p.root.ob.worldPosition.copy()
+        co.z += 0.2
+        node.ob.worldPosition = co
 
         return "You take {name}".format(name=n.nounphrase(node.ob, p))
 
 def drop_any(n, p):
-    pass
+    import bge
+    import tba
+
+    obs = _inventory(p.root.ob)
+
+    if not obs:
+        return "You're not holding anything"
+    else:
+        ob_take = obs[0]  # assume one
+
+        ob_take.removeParent()
+
+        co = p.root.ob.worldPosition.copy()
+        co.z += 0.2
+        ob_take.worldPosition = co
+
+        return "You drop {name}".format(name=n.nounphrase(ob_take))
+
+
