@@ -49,6 +49,12 @@ def embody_node(n, p, node):
         sce.active_camera = new_view
 
     tba.prompt.globals["PERSPECTIVE"] = tba.render.Perspective(node.ob)
+
+    if 'element' in node.ob:
+        tba.prompt.globals["FONT"] = node.ob['element']
+    else:
+        tba.prompt.globals["FONT"] = None
+
     #p.root = node
     #p.__init__(p.root.ob)
     embody_descr = node.ob.get("embody_descr", "")

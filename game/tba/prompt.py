@@ -1,17 +1,44 @@
 import bge
+import blf
 
-FONT_SIZE = 18
+FONT_SIZE = 40
 SMART_WRAP = True
 MARGIN = 0.1
 
 globals = {
     "SCROLLBACK": "",
+    "FONT": "spirit",
     "PERSPECTIVE": None,
     "NARRATOR": None,
     }
 
 # ------------------------------------------------------------------------------
 # Drawing
+
+
+FONTS = {
+    "stone": "//fonts/Caesar_Dressing/CaesarDressing-Regular.ttf",
+    "heavywood": "//fonts/Freckle_Face/FreckleFace-Regular.ttf",
+    "lightwood": "//fonts/Rum_Raisin/RumRaisin-Regular.ttf",
+    "water": "//fonts/Indie_Flower/IndieFlower.ttf",
+    "spirit": "//fonts/Mystery_Quest/MysteryQuest-Regular.ttf",
+    "metal": "//fonts/Russo_One/RussoOne-Regular.ttf",
+    }
+
+font_ids = {}
+
+
+def get_font(name):
+    if name in font_ids:
+        return font_ids[name]
+    try:
+        font_path = bge.logic.expandPath(FONTS[name])
+    except KeyError:
+        print('Warning: unknown font %s' % name)
+        font_ids[name] = 0
+    else:
+        font_ids[name] = blf.load(font_path)
+    return font_ids[name]
 
 
 def draw_text(text):
@@ -21,8 +48,7 @@ def draw_text(text):
     def draw_block(text):
         pass
 
-    import blf
-    font_id = 0  # XXX, need to find out how best to get this.
+    font_id = get_font(globals['FONT'])
 
     import bgl
     from bge import render, logic
@@ -63,9 +89,9 @@ def draw_text(text):
                 blf.position(font_id, x, y, 0.0)
                 blf.draw(font_id, text_test)
                 text_split.clear()
-                y -= FONT_SIZE
+                y -= FONT_SIZE * 1.5
             # \n
-            y -= FONT_SIZE
+            y -= FONT_SIZE * 2
 
 
 def draw_cb():
