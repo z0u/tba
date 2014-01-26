@@ -8,7 +8,7 @@ def move_to(n, p, node):
     import bge
 
     if not p.root.ob.get("use_move", False):
-        text = "{sub} is immobile.".format(sub=n.nounphrase(p.root.ob))
+        text = "{sub} is immobile.".format(sub=n.nounphrase(p.root.ob, p))
         n.mention(p.root.ob)
         return text
 
@@ -44,7 +44,7 @@ def embody_node(n, p, node):
     import bge
 
     if not node.ob.get("use_alive", False):
-        text = "{sub} has no spirit to embody.".format(sub=n.nounphrase(node.ob))
+        text = "{sub} has no spirit to embody.".format(sub=n.nounphrase(node.ob, p))
         n.mention(p.root.ob)
         return text
 
@@ -115,7 +115,7 @@ def eat_node(n, p, node):
 
             return "You have eaten the {name} falls across the river".format(name=node.ob.name)
 
-    return "You cant eat {name}".format(name=n.nounphrase(node.ob))
+    return "You cant eat {name}".format(name=n.nounphrase(node.ob, p))
 
 
 def _inventory(ob):
@@ -128,23 +128,23 @@ def take_node(n, p, node):
     obs = _inventory(node.ob)
 
     if obs:
-        return "You're holding {name}".format(name=n.nounphrase(obs[0]))
+        return "You're holding {name}".format(name=n.nounphrase(obs[0], p))
     else:
         sce = bge.logic.getCurrentScene()
         new_view = tba.render.nearest_view(node.ob, sce.objects)
         if sce.active_camera != new_view:
-            return "You're too faw away from {name}".format(name=n.nounphrase(node.ob))
+            return "You're too faw away from {name}".format(name=n.nounphrase(node.ob, p))
 
         if p.root.ob == node.ob:
             return "Can't take yourself"
 
         if not node.ob.get("use_collect", False):
-            return "You can't take {name}".format(name=n.nounphrase(node.ob))
+            return "You can't take {name}".format(name=n.nounphrase(node.ob, p))
 
         p.root.ob.setParent(node.ob)
         node.ob.worldPosition = p.root.ob.worldPosition
 
-        return "You take {name}".format(name=n.nounphrase(node.ob))
+        return "You take {name}".format(name=n.nounphrase(node.ob, p))
 
 def drop_any(n, p):
     pass

@@ -363,7 +363,9 @@ class Narrator:
             else:
                 return 'a'
 
-    def nounphrase(self, ob):
+    def nounphrase(self, ob, perspective):
+        if ob is perspective.root.ob:
+            return 'you'
         return '{a} {ob}'.format(a=self.article(ob), ob=ob.name)
 
     def preposition(self, ob, ref):
@@ -440,7 +442,7 @@ class Narrator:
                 #print(context.ob, prep, nodes)
                 nps = []
                 for n in nodes:
-                    nps.append(self.nounphrase(n.ob))
+                    nps.append(self.nounphrase(n.ob, tree))
                 if len(nps) > 1:
                     template = '{s} are {prep} {ob}'
                     subject = ", ".join(nps[:-1])
@@ -450,7 +452,7 @@ class Narrator:
                     subject = nps[0]
 
                 if first:
-                    ob = self.nounphrase(context.ob)
+                    ob = self.nounphrase(context.ob, tree)
                     first = False
                 else:
                     ob = "it"
@@ -475,7 +477,7 @@ class Narrator:
         if 'description' in ob:
             text = ob['description']
         else:
-            text = "It's just {ob}.".format(ob=self.nounphrase(ob))
+            text = "It's just {ob}.".format(ob=self.nounphrase(ob, node.perspective))
         self.mention(ob)
         return text
 
@@ -491,9 +493,9 @@ class Narrator:
         else:
             template = '{s} is {prep} {ob}.'
         text = sentence(template.format(
-            s=self.nounphrase(ob),
+            s=self.nounphrase(ob, node.perspective),
             prep=self.preposition(ob, ref),
-            ob=self.nounphrase(ref)))
+            ob=self.nounphrase(ref, node.perspective)))
         self.mention(ob)
         self.mention(ref)
         return text
